@@ -3,5 +3,5 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o ./out/dist .
+RUN go build -o ./dist/twitchstatsproducer cmd/twitchstatsproducer/main.go
 CMD ["./out/dist"]
