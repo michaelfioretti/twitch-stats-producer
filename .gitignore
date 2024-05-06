@@ -22,3 +22,6 @@ go.work
 
 # Build/binary outputs
 dist/
+
+# Configuration variables
+.env

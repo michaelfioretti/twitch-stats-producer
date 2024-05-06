@@ -1,7 +1,7 @@
-FROM golang:1.17-alpine
+FROM golang:1.18
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o ./dist/twitchstatsproducer cmd/twitchstatsproducer/main.go
-CMD ["./out/dist"]
+RUN go build -o dist/main cmd/twitchstatsproducer/main.go
+CMD ["./dist/main"]
