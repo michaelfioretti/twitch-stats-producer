@@ -10,14 +10,10 @@ import (
 )
 
 func produceMessages() {
-	fmt.Println("Starting Kafka producer")
-
 	conn := kafkahelper.SetUpKafkaConnection()
 	go kafkahelper.ValidateBaseTopics()
 
 	defer conn.Close()
-
-	fmt.Println("Connected to Kafka broker. Now writing messages")
 
 	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 	_, err := conn.WriteMessages(
@@ -30,13 +26,9 @@ func produceMessages() {
 		log.Fatal("failed to write messages:", err)
 	}
 
-	fmt.Println("Produced messages")
-
 	if err := conn.Close(); err != nil {
 		log.Fatal("failed to close writer:", err)
 	}
-
-	fmt.Println("Produced message")
 }
 
 func consumeMessages() {
@@ -44,23 +36,25 @@ func consumeMessages() {
 
 	defer conn.Close()
 
-	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
-	batch := conn.ReadBatch(10e3, 1e6) // fetch 10KB min, 1MB max
+	conn.SetReadDeadline(time.Time{})
 
-	b := make([]byte, 10e3) // 10KB max per message
 	for {
-		_, err := batch.Read(b)
+		msg, err := conn.ReadMessage(10e6)
 		if err != nil {
-			break
+			log.Fatal("failed to read message:", err)
 		}
-		fmt.Println("Received message:", string(b))
+		fmt.Println("Received message:", string(msg.Value))
+		// Process the received message here
 	}
-
-	batch.Close()
 }
 
 func main() {
-	go produceMessages()
+	go func() {
+		for {
+			produceMessages()
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	consumeMessages()
 }
