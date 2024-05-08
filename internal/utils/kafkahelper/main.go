@@ -1,6 +1,7 @@
 package kafkahelper
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
@@ -19,6 +20,18 @@ func GetBrokerAddress() string {
 	}
 
 	return os.Getenv("KAFKA_BROKER")
+}
+
+func SetUpKafkaConnection() *kafka.Conn {
+	brokerAddress := GetBrokerAddress()
+
+	// Note: right now the topic and partition are hardcoded, but this will change
+	conn, err := kafka.DialLeader(context.Background(), "tcp", brokerAddress, "my-topic", 0)
+	if err != nil {
+		log.Fatalf("Failed to connect to Kafka broker: %v", err)
+	}
+
+	return conn
 }
 
 func ValidateBaseTopics() {

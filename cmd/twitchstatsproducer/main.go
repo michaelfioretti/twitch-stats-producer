@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
@@ -10,45 +9,38 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func produceMessages(brokerAddress string) {
-	topic := "test-topic"
-	partition := 0
+func produceMessages() {
+	fmt.Println("Starting Kafka producer")
 
-	fmt.Println("Producing message")
-	conn, err := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
-	if err != nil {
-		log.Fatalf("Failed to connect to Kafka broker: %v", err)
-	}
-	fmt.Println("Connected to Kafka broker")
-	fmt.Print(conn)
+	conn := kafkahelper.SetUpKafkaConnection()
+	go kafkahelper.ValidateBaseTopics()
 
 	defer conn.Close()
 
-	fmt.Print("Writing message")
-	if conn != nil {
-		conn.WriteMessages(
-			kafka.Message{Value: []byte("one!")},
-		)
+	fmt.Println("Connected to Kafka broker. Now writing messages")
+
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_, err := conn.WriteMessages(
+		kafka.Message{Value: []byte("one!")},
+		kafka.Message{Value: []byte("two!")},
+		kafka.Message{Value: []byte("three!")},
+	)
+
+	if err != nil {
+		log.Fatal("failed to write messages:", err)
 	}
 
-	conn.WriteMessages(
-		kafka.Message{Value: []byte("one!")},
-	)
+	fmt.Println("Produced messages")
+
+	if err := conn.Close(); err != nil {
+		log.Fatal("failed to close writer:", err)
+	}
 
 	fmt.Println("Produced message")
 }
 
-func consumeMessages(brokerAddress string) {
-	topic := "test-topic"
-	partition := 0
-
-	fmt.Println("Broker address:", brokerAddress)
-
-	conn, _ := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
-
-	if conn == nil {
-		log.Fatalf("Failed to connect to Kafka broker")
-	}
+func consumeMessages() {
+	conn := kafkahelper.SetUpKafkaConnection()
 
 	defer conn.Close()
 
@@ -68,33 +60,7 @@ func consumeMessages(brokerAddress string) {
 }
 
 func main() {
-	fmt.Println("Starting Kafka producer")
-	kafkahelper.ValidateBaseTopics()
+	go produceMessages()
 
-	brokerAddress := kafkahelper.GetBrokerAddress()
-	topic := "my-topic"
-	fmt.Println("Broker address:", brokerAddress)
-
-	conn, err := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, 1)
-	if err != nil {
-		log.Fatal("failed to dial leader:", err)
-	}
-
-	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	_, err = conn.WriteMessages(
-		kafka.Message{Value: []byte("one!")},
-		kafka.Message{Value: []byte("two!")},
-		kafka.Message{Value: []byte("three!")},
-	)
-	if err != nil {
-		log.Fatal("failed to write messages:", err)
-	}
-
-	if err := conn.Close(); err != nil {
-		log.Fatal("failed to close writer:", err)
-	}
-
-	// go produceMessages(brokerAddress)
-
-	// consumeMessages(brokerAddress)
+	consumeMessages()
 }
