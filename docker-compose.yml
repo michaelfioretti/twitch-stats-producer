@@ -45,11 +45,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  # TODO #6: Dockerize the twitchstatsproducer
   # twitchstatsproducer:
   #   build:
   #     dockerfile: Dockerfile
   #   depends_on:
-  #     - kafka
+  #     - kafka-1
+  #     - kafka-2
   #   env_file:
   #     - .env
   #   ports:
