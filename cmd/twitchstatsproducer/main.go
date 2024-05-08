@@ -1,33 +1,46 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"github.com/segmentio/kafka-go"
+	"log"
 	"time"
+
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
+	"github.com/segmentio/kafka-go"
 )
 
-func produceMessages(brokerAddress string) {
-	topic := "test-topic"
-	partition := 0
+func produceMessages() {
+	fmt.Println("Starting Kafka producer")
 
-	conn, _ := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
+	conn := kafkahelper.SetUpKafkaConnection()
+	go kafkahelper.ValidateBaseTopics()
 
 	defer conn.Close()
 
+	fmt.Println("Connected to Kafka broker. Now writing messages")
+
 	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	conn.WriteMessages(
-		kafka.Message{Value: []byte("Hello World!")},
+	_, err := conn.WriteMessages(
+		kafka.Message{Value: []byte("one!")},
+		kafka.Message{Value: []byte("two!")},
+		kafka.Message{Value: []byte("three!")},
 	)
+
+	if err != nil {
+		log.Fatal("failed to write messages:", err)
+	}
+
+	fmt.Println("Produced messages")
+
+	if err := conn.Close(); err != nil {
+		log.Fatal("failed to close writer:", err)
+	}
 
 	fmt.Println("Produced message")
 }
 
-func consumeMessages(brokerAddress string) {
-	topic := "test-topic"
-	partition := 0
-
-	conn, _ := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
+func consumeMessages() {
+	conn := kafkahelper.SetUpKafkaConnection()
 
 	defer conn.Close()
 
@@ -47,7 +60,7 @@ func consumeMessages(brokerAddress string) {
 }
 
 func main() {
-	brokerAddress := "kafka:9092"
-	go produceMessages(brokerAddress)
-	consumeMessages(brokerAddress)
+	go produceMessages()
+
+	consumeMessages()
 }
