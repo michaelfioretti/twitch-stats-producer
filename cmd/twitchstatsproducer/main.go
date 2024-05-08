@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkaconsumer"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
@@ -31,23 +31,6 @@ func produceMessages() {
 	}
 }
 
-func consumeMessages() {
-	conn := kafkahelper.SetUpKafkaConnection()
-
-	defer conn.Close()
-
-	conn.SetReadDeadline(time.Time{})
-
-	for {
-		msg, err := conn.ReadMessage(10e6)
-		if err != nil {
-			log.Fatal("failed to read message:", err)
-		}
-		fmt.Println("Received message:", string(msg.Value))
-		// Process the received message here
-	}
-}
-
 func main() {
 	go func() {
 		for {
@@ -56,5 +39,5 @@ func main() {
 		}
 	}()
 
-	consumeMessages()
+	kafkaconsumer.ReadMessages()
 }

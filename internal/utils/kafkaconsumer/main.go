@@ -14,7 +14,8 @@ func CreateKafkaConsumer() *kafka.Reader {
 	return kafka.NewReader(readerConfig)
 }
 
-func ReadMessages(reader *kafka.Reader) {
+func ReadMessages() {
+	reader := CreateKafkaConsumer()
 	for {
 		m, err := reader.ReadMessage(context.Background())
 		if err != nil {

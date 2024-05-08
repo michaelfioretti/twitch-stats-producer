@@ -25,3 +25,6 @@ dist/
 
 # Configuration variables
 .env
+
+# VS Code
+.vscode
