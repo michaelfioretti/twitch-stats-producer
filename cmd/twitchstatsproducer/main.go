@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -68,15 +68,31 @@ func consumeMessages(brokerAddress string) {
 }
 
 func main() {
-	// load .env file
-	err := godotenv.Load(".env")
+	fmt.Println("Starting Kafka producer")
+	kafkahelper.ValidateBaseTopics()
 
+	brokerAddress := kafkahelper.GetBrokerAddress()
+	topic := "my-topic"
+	fmt.Println("Broker address:", brokerAddress)
+
+	conn, err := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, 1)
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Fatal("failed to dial leader:", err)
 	}
 
-	// Get the Kafka broker address from the KAFKA_BROKER environment variable
-	// brokerAddress := os.Getenv("KAFKA_BROKER")
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_, err = conn.WriteMessages(
+		kafka.Message{Value: []byte("one!")},
+		kafka.Message{Value: []byte("two!")},
+		kafka.Message{Value: []byte("three!")},
+	)
+	if err != nil {
+		log.Fatal("failed to write messages:", err)
+	}
+
+	if err := conn.Close(); err != nil {
+		log.Fatal("failed to close writer:", err)
+	}
 
 	// go produceMessages(brokerAddress)
 
