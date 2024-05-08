@@ -3,21 +3,36 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/segmentio/kafka-go"
+	"log"
 	"time"
+
+	"github.com/joho/godotenv"
+	"github.com/segmentio/kafka-go"
 )
 
 func produceMessages(brokerAddress string) {
 	topic := "test-topic"
 	partition := 0
 
-	conn, _ := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
+	fmt.Println("Producing message")
+	conn, err := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
+	if err != nil {
+		log.Fatalf("Failed to connect to Kafka broker: %v", err)
+	}
+	fmt.Println("Connected to Kafka broker")
+	fmt.Print(conn)
 
 	defer conn.Close()
 
-	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	fmt.Print("Writing message")
+	if conn != nil {
+		conn.WriteMessages(
+			kafka.Message{Value: []byte("one!")},
+		)
+	}
+
 	conn.WriteMessages(
-		kafka.Message{Value: []byte("Hello World!")},
+		kafka.Message{Value: []byte("one!")},
 	)
 
 	fmt.Println("Produced message")
@@ -27,7 +42,13 @@ func consumeMessages(brokerAddress string) {
 	topic := "test-topic"
 	partition := 0
 
+	fmt.Println("Broker address:", brokerAddress)
+
 	conn, _ := kafka.DialLeader(context.Background(), "tcp", brokerAddress, topic, partition)
+
+	if conn == nil {
+		log.Fatalf("Failed to connect to Kafka broker")
+	}
 
 	defer conn.Close()
 
@@ -47,7 +68,17 @@ func consumeMessages(brokerAddress string) {
 }
 
 func main() {
-	brokerAddress := "kafka:9092"
-	go produceMessages(brokerAddress)
-	consumeMessages(brokerAddress)
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	// Get the Kafka broker address from the KAFKA_BROKER environment variable
+	// brokerAddress := os.Getenv("KAFKA_BROKER")
+
+	// go produceMessages(brokerAddress)
+
+	// consumeMessages(brokerAddress)
 }
