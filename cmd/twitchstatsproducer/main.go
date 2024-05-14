@@ -27,5 +27,5 @@ func main() {
 		}
 	}()
 
-	kafkaconsumer.ReadMessages()
+	kafkaconsumer.ReadMessages("my-topic")
 }
