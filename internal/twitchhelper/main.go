@@ -2,12 +2,31 @@
 package twitchhelper
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/gorilla/websocket"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 )
+
+const (
+	twitchWelcomeMessage = "session_welcome"
+)
+
+// type TwitchMessage struct {
+// 	Metadata struct `json:"type"`
+// 	Payload string `json:"data"`
+// }
+
+type TwitchMessageRequest struct {
+	Type      string `json:"type"`
+	Version   string `json:"version"`
+	Condition struct {
+		BroadcasterUserId string `json:"broadcaster_user_id"`
+		ModeratorUserId   string `json:"moderator_user_id"`
+	}
+}
 
 func main() {
 	fmt.Println("Hello from Twitch Helper!")
@@ -29,6 +48,32 @@ func ListenToMessages(conn *websocket.Conn, wsMessages chan struct{}) {
 			log.Println("Read error:", err)
 			return
 		}
-		log.Printf("Received message: %s", message)
+
+		log.Println("Received message:", string(message))
+
+		var msgData map[string]interface{}
+		err = json.Unmarshal(message, &msgData)
+		if err != nil {
+			log.Fatal("JSON parsing error:", err)
+		}
+
+		// Check if the message is a welcome message
+		if metadata, ok := msgData["metadata"].(map[string]interface{}); ok {
+			if messageType, ok := metadata["message_type"].(string); ok && messageType == twitchWelcomeMessage {
+				HandleWelcomeMessage(conn)
+			}
+		}
+	}
+}
+
+func HandleWelcomeMessage(conn *websocket.Conn) {
+	log.Println("Sending response to welcome message")
+
+	// Send a message back (replace with your actual message)
+	responseMessage := []byte("This is a response from my Go server!")
+	err := conn.WriteMessage(websocket.TextMessage, responseMessage)
+	if err != nil {
+		log.Println("Write error:", err)
+		return // Or handle the error differently
 	}
 }
