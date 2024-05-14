@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
 
-func CreateKafkaConsumer() *kafka.Reader {
+func CreateKafkaConsumer(topic string) *kafka.Reader {
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
-	readerConfig := GetKafkaConsumerConfig()
+	readerConfig := GetKafkaConsumerConfig(topic)
 	return kafka.NewReader(readerConfig)
 }
 
-func ReadMessages() {
-	reader := CreateKafkaConsumer()
+func ReadMessages(topic string) {
+	reader := CreateKafkaConsumer(topic)
 	for {
 		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
@@ -29,11 +30,12 @@ func ReadMessages() {
 	}
 }
 
-// TODO: #5
-func GetKafkaConsumerConfig() kafka.ReaderConfig {
+// TODO: #5 change Partition to GroupID
+func GetKafkaConsumerConfig(topic string) kafka.ReaderConfig {
+	brokerAddresses := kafkahelper.GetBrokerAddresses()
 	return kafka.ReaderConfig{
-		Brokers:   []string{"localhost:29092", "localhost:39092"},
-		Topic:     "my-topic",
+		Brokers:   brokerAddresses,
+		Topic:     topic,
 		Partition: 0,
 		MaxBytes:  10e6, // 10MB
 	}

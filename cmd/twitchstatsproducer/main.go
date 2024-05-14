@@ -1,34 +1,22 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkaconsumer"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkaproducer"
 	"github.com/segmentio/kafka-go"
 )
 
 func produceMessages() {
-	conn := kafkahelper.SetUpKafkaConnection()
 	go kafkahelper.ValidateBaseTopics()
 
-	defer conn.Close()
+	msg1 := kafka.Message{Value: []byte("one!")}
+	msg2 := kafka.Message{Value: []byte("two!")}
+	msg3 := kafka.Message{Value: []byte("three!")}
 
-	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	_, err := conn.WriteMessages(
-		kafka.Message{Value: []byte("one!")},
-		kafka.Message{Value: []byte("two!")},
-		kafka.Message{Value: []byte("three!")},
-	)
-
-	if err != nil {
-		log.Fatal("failed to write messages:", err)
-	}
-
-	if err := conn.Close(); err != nil {
-		log.Fatal("failed to close writer:", err)
-	}
+	kafkaproducer.WriteDataToKafka("my-topic", []kafka.Message{msg1, msg2, msg3})
 }
 
 func main() {
@@ -39,5 +27,5 @@ func main() {
 		}
 	}()
 
-	kafkaconsumer.ReadMessages()
+	kafkaconsumer.ReadMessages("my-topic")
 }
