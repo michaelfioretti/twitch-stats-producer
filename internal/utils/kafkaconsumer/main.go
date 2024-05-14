@@ -30,7 +30,7 @@ func ReadMessages(topic string) {
 	}
 }
 
-// TODO: #5
+// TODO: #5 change Partition to GroupID
 func GetKafkaConsumerConfig(topic string) kafka.ReaderConfig {
 	brokerAddresses := kafkahelper.GetBrokerAddresses()
 	return kafka.ReaderConfig{
