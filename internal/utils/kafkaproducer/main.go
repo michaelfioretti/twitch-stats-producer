@@ -5,16 +5,23 @@
 package kafkaproducer
 
 import (
-	"fmt"
+	"context"
 	"log"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
 
-func WriteDataToKafka(producer *kafka.Writer, data []byte) {
-	// TODO: Write data here
-	fmt.Println("Write the data here!.....")
+func WriteDataToKafka(topic string, messages []kafka.Message) {
+	producer := CreateKafkaProducer(topic)
+
+	for _, message := range messages {
+		err := producer.WriteMessages(context.Background(), message)
+
+		if err != nil {
+			log.Fatal("failed to write messages:", err)
+		}
+	}
 }
 
 func CreateKafkaProducer(topic string) *kafka.Writer {
