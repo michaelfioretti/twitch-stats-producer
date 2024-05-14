@@ -3,9 +3,9 @@ package main
 import (
 	"time"
 
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkaconsumer"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkaproducer"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkaconsumer"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkaproducer"
 	"github.com/segmentio/kafka-go"
 )
 
