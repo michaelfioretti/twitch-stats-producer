@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -16,16 +17,18 @@ func WriteDataToKafka(producer *kafka.Writer, data []byte) {
 	fmt.Println("Write the data here!.....")
 }
 
-func CreateKafkaProducer() *kafka.Writer {
-	producerConfig := GetKafkaProducerConfig()
+func CreateKafkaProducer(topic string) *kafka.Writer {
+	producerConfig := GetKafkaProducerConfig(topic)
 	log.Default().Println("Creating Kafka producer...")
 	return kafka.NewWriter(kafka.WriterConfig(producerConfig))
 }
 
-func GetKafkaProducerConfig() kafka.WriterConfig {
+func GetKafkaProducerConfig(topic string) kafka.WriterConfig {
+	brokerAddresses := kafkahelper.GetBrokerAddresses()
+
 	return kafka.WriterConfig{
-		Brokers:  []string{"localhost:29092", "localhost:39092"},
-		Topic:    "my-topic",
+		Brokers:  brokerAddresses,
+		Topic:    topic,
 		Balancer: &kafka.LeastBytes{},
 	}
 }

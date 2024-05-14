@@ -1,17 +1,18 @@
 package kafkahelper
 
 import (
-	"context"
 	"log"
 	"net"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
 )
 
-func GetBrokerAddress() string {
+func GetBrokerAddresses() []string {
 	// load .env file
 	err := godotenv.Load(".env")
 
@@ -19,56 +20,83 @@ func GetBrokerAddress() string {
 		log.Fatalf("Error loading .env file")
 	}
 
-	return os.Getenv("KAFKA_BROKER")
+	brokerAddresses := os.Getenv("KAFKA_BROKERS")
+	addresses := strings.Split(brokerAddresses, ",")
+	return addresses
 }
 
-func SetUpKafkaConnection() *kafka.Conn {
-	brokerAddress := GetBrokerAddress()
+func GetAvailableTopics() []string {
+	err := godotenv.Load(".env")
 
-	// Note: right now the topic and partition are hardcoded, but this will change
-	conn, err := kafka.DialLeader(context.Background(), "tcp", brokerAddress, "my-topic", 0)
 	if err != nil {
-		log.Fatalf("Failed to connect to Kafka broker: %v", err)
+		log.Fatalf("Error loading .env file")
+	}
+
+	topics := os.Getenv("KAFKA_TOPICS")
+	availableTopics := strings.Split(topics, ",")
+	return availableTopics
+}
+
+func CreateKafkaConnection() *kafka.Conn {
+	brokerAddresses := GetBrokerAddresses()
+	// Use first one for simplicity
+	conn, err := kafka.Dial("tcp", brokerAddresses[0])
+	if err != nil {
+		log.Fatalf("Error connecting to Kafka cluster: %v", err)
 	}
 
 	return conn
 }
 
+func GetPartitionAndReplicationCount() (int, int) {
+	partitionCountStr := utils.GetEnvVar("PARTITION_COUNT")
+	replicationCountStr := utils.GetEnvVar("REPLICATION_COUNT")
+
+	partitionCount, err := strconv.Atoi(partitionCountStr)
+	if err != nil {
+		log.Fatalf("Error converting PARTITION_COUNT to integer: %v", err)
+	}
+
+	replicationCount, err := strconv.Atoi(replicationCountStr)
+	if err != nil {
+		{
+			log.Fatalf("Error converting REPLICATION_COUNT to integer: %v", err)
+		}
+	}
+
+	return partitionCount, replicationCount
+}
+
+// Pulls all topics listed in the .env file and creates them in the associated
+// Kafka cluster if they do not exist.
 func ValidateBaseTopics() {
-	// load .env file
-	err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	partitionCount, replicationCount := GetPartitionAndReplicationCount()
 
-	// Get the Kafka broker address from the KAFKA_BROKER environment variable
-	brokerAddress := os.Getenv("KAFKA_BROKER")
-	topic := "my-topic"
+	conn := CreateKafkaConnection()
 
-	conn, err := kafka.Dial("tcp", brokerAddress)
-	if err != nil {
-		panic(err.Error())
-	}
 	defer conn.Close()
 
 	controller, err := conn.Controller()
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
-	var controllerConn *kafka.Conn
-	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+
+	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 	defer controllerConn.Close()
 
-	topicConfigs := []kafka.TopicConfig{
-		{
-			Topic:             topic,
-			NumPartitions:     1,
-			ReplicationFactor: 1,
-		},
+	// Loop and create topic configs
+	topics := GetAvailableTopics()
+	topicConfigs := []kafka.TopicConfig{}
+	for i := range topics {
+		topicConfigs = append(topicConfigs, kafka.TopicConfig{
+			Topic:             topics[i],
+			NumPartitions:     partitionCount,
+			ReplicationFactor: replicationCount,
+		})
 	}
 
 	err = controllerConn.CreateTopics(topicConfigs...)
