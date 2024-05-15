@@ -70,5 +70,15 @@ func HandleWelcomeMessage(conn *websocket.Conn) {
 	log.Println("Sending response to welcome message")
 
 	// Get Oauth token if needed and begin to subscribe to events
-	SendOauthRequest()
+	err, oauthResponse := SendOauthRequest()
+
+	if err != nil {
+		log.Println("Error sending Oauth request:", err)
+		return
+	}
+
+	log.Println("Oauth response:", oauthResponse)
+
+	// Subscribe to events
+
 }

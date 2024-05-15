@@ -22,3 +22,10 @@ func TestTwitchOauthRequestType(t *testing.T) {
 		t.Errorf("Expected TwitchOauthRequestType to be %s, but got %s", expected, TwitchOauthRequestType)
 	}
 }
+
+func TestTwitchUsersAPIUrl(t *testing.T) {
+	expected := "https://api.twitch.tv/helix/users"
+	if TwitchUsersAPIUrl != expected {
+		t.Errorf("Expected TwitchUsersAPIUrl to be %s, but got %s", expected, TwitchUsersAPIUrl)
+	}
+}

@@ -24,7 +24,7 @@ func SendOauthRequest() (error, TwitchOauthResponse) {
 	q := req.URL.Query()
 	q.Add("client_id", clientId)
 	q.Add("client_secret", clientSecret)
-	q.Add("grant_type", "client_credentials")
+	q.Add("grant_type", constants.TwitchOauthRequestType)
 
 	req.URL.RawQuery = q.Encode()
 	client := &http.Client{}
