@@ -69,11 +69,6 @@ func ListenToMessages(conn *websocket.Conn, wsMessages chan struct{}) {
 func HandleWelcomeMessage(conn *websocket.Conn) {
 	log.Println("Sending response to welcome message")
 
-	// Send a message back (replace with your actual message)
-	responseMessage := []byte("This is a response from my Go server!")
-	err := conn.WriteMessage(websocket.TextMessage, responseMessage)
-	if err != nil {
-		log.Println("Write error:", err)
-		return // Or handle the error differently
-	}
+	// Get Oauth token if needed and begin to subscribe to events
+	SendOauthRequest()
 }
