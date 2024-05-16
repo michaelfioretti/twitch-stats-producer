@@ -36,13 +36,17 @@ func main() {
 		log.Fatal("Error getting OAuth token:", err)
 	}
 
-	liveChannelsCount, err := twitchhelper.GetLiveChannelsCount(clientId, oauthToken.AccessToken)
+	topLivestreams, err := twitchhelper.GetTop100Livestreams(clientId, oauthToken.AccessToken)
 	if err != nil {
-		fmt.Printf("Error getting live channels count: %v\n", err)
+		fmt.Printf("Error getting livestreams: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("There are currently %d live channels on Twitch.\n", liveChannelsCount)
+	fmt.Print("Here are the top 100 livestreams, the game, and the streamer\n")
+	fmt.Print("Count: ", len(topLivestreams), "\n\n")
+	for i, stream := range topLivestreams {
+		fmt.Printf("%d: Streamer: %s, with: %d viewers\n", i, stream.UserName, stream.ViewerCount)
+	}
 
 	// u := url.URL{Scheme: "wss", Host: constants.TWITCH_PUBSUB_URL}
 	// headers := http.Header{}
