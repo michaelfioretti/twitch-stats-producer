@@ -2,30 +2,51 @@ package constants
 
 import "testing"
 
-func TestTwitchOauthURL(t *testing.T) {
-	expected := "https://id.twitch.tv/oauth2/token"
-	if TwitchOauthURL != expected {
-		t.Errorf("Expected TwitchOauthURL to be %s, but got %s", expected, TwitchOauthURL)
+func TestNumber1(t *testing.T) {
+	expected := "1"
+	if NUMBER_1_STR != expected {
+		t.Errorf("Expected NUMBER_1_STR to be %s, but got %s", expected, NUMBER_1_STR)
 	}
 }
 
-func TestTwitchEventSubWSS(t *testing.T) {
+func TestWebsocketString(t *testing.T) {
+	expected := "websocket"
+	if WEBSOCKET_STRING != expected {
+		t.Errorf("Expected WEBSOCKET_STRING to be %s, but got %s", expected, WEBSOCKET_STRING)
+	}
+
+}
+func TestTwitchOauthUrl(t *testing.T) {
+	expected := "https://id.twitch.tv/oauth2/token"
+	if TWITCH_OAUTH_URL != expected {
+		t.Errorf("Expected TWITCH_OAUTH_URL to be %s, but got %s", expected, TWITCH_OAUTH_URL)
+	}
+}
+
+func TestTwitchEventSubWss(t *testing.T) {
 	expected := "eventsub.wss.twitch.tv"
-	if TwitchEventSubWSS != expected {
-		t.Errorf("Expected TwitchEventSubWSS to be %s, but got %s", expected, TwitchEventSubWSS)
+	if TWITCH_EVENT_SUB_WSS != expected {
+		t.Errorf("Expected TWITCH_EVENT_SUB_WSS to be %s, but got %s", expected, TWITCH_EVENT_SUB_WSS)
 	}
 }
 
 func TestTwitchOauthRequestType(t *testing.T) {
 	expected := "client_credentials"
-	if TwitchOauthRequestType != expected {
-		t.Errorf("Expected TwitchOauthRequestType to be %s, but got %s", expected, TwitchOauthRequestType)
+	if TWITCH_OAUTH_REQUEST_TYPE != expected {
+		t.Errorf("Expected TWITCH_OAUTH_REQUEST_TYPE to be %s, but got %s", expected, TWITCH_OAUTH_REQUEST_TYPE)
 	}
 }
 
-func TestTwitchUsersAPIUrl(t *testing.T) {
+func TestTwitchUsersApiUrl(t *testing.T) {
 	expected := "https://api.twitch.tv/helix/users"
-	if TwitchUsersAPIUrl != expected {
-		t.Errorf("Expected TwitchUsersAPIUrl to be %s, but got %s", expected, TwitchUsersAPIUrl)
+	if TWITCH_USERS_API_URL != expected {
+		t.Errorf("Expected TWITCH_USERS_API_URL to be %s, but got %s", expected, TWITCH_USERS_API_URL)
+	}
+}
+
+func TestTwitchChannelChatSubscriptionType(t *testing.T) {
+	expected := "channel.chat.message"
+	if TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE != expected {
+		t.Errorf("Expected TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE to be %s, but got %s", expected, TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE)
 	}
 }

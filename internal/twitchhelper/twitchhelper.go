@@ -4,7 +4,10 @@ package twitchhelper
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
+	"net/url"
 
 	"github.com/gorilla/websocket"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
@@ -78,7 +81,42 @@ func HandleWelcomeMessage(conn *websocket.Conn) {
 	}
 
 	log.Println("Oauth response:", oauthResponse)
+}
 
-	// Subscribe to events
+// GetLiveChannelsCount fetches the current number of live channels from Twitch API
+func GetLiveChannelsCount(clientId string, oauthToken string) (int, error) {
 
+	u := url.URL{Scheme: "https", Host: "api.twitch.tv", Path: "/helix/streams"}
+	q := u.Query()
+	q.Set("type", "live")
+	u.RawQuery = q.Encode()
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", u.String(), nil)
+	req.Header.Set("Client-Id", clientId)
+	req.Header.Set("Authorization", "Bearer "+oauthToken)
+
+	// user_name is the Twitch username of the broadcaster
+	// user_id is the id that you might want?
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, fmt.Errorf("error making GET request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var data map[string]interface{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return 0, fmt.Errorf("error unmarshaling JSON response: %v", err)
+	}
+
+	fmt.Printf("Data is %v\n", data)
+
+	return 0, nil
 }

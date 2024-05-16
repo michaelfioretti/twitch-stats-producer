@@ -15,7 +15,7 @@ type TwitchOauthResponse struct {
 
 func SendOauthRequest() (error, TwitchOauthResponse) {
 	clientId, clientSecret := LoadTwitchKeys()
-	req, err := http.NewRequest("POST", constants.TwitchOauthURL, nil)
+	req, err := http.NewRequest("POST", constants.TWITCH_OAUTH_URL, nil)
 	if err != nil {
 		return err, TwitchOauthResponse{}
 	}
@@ -24,7 +24,7 @@ func SendOauthRequest() (error, TwitchOauthResponse) {
 	q := req.URL.Query()
 	q.Add("client_id", clientId)
 	q.Add("client_secret", clientSecret)
-	q.Add("grant_type", constants.TwitchOauthRequestType)
+	q.Add("grant_type", constants.TWITCH_OAUTH_REQUEST_TYPE)
 
 	req.URL.RawQuery = q.Encode()
 	client := &http.Client{}
