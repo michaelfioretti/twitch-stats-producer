@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils/kafkahelper"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
 
