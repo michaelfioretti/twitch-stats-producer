@@ -10,17 +10,13 @@ import (
 	"net/url"
 
 	"github.com/gorilla/websocket"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/models"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 )
 
 const (
 	twitchWelcomeMessage = "session_welcome"
 )
-
-// type TwitchMessage struct {
-// 	Metadata struct `json:"type"`
-// 	Payload string `json:"data"`
-// }
 
 type TwitchMessageRequest struct {
 	Type      string `json:"type"`
@@ -83,12 +79,13 @@ func HandleWelcomeMessage(conn *websocket.Conn) {
 	log.Println("Oauth response:", oauthResponse)
 }
 
-// GetLiveChannelsCount fetches the current number of live channels from Twitch API
-func GetLiveChannelsCount(clientId string, oauthToken string) (int, error) {
+// GetTop100Livestreams fetches the current number of live channels from Twitch API
+func GetTop100Livestreams(oauthToken string) ([]models.Stream, error) {
+	clientId, _ := LoadTwitchKeys()
 
 	u := url.URL{Scheme: "https", Host: "api.twitch.tv", Path: "/helix/streams"}
 	q := u.Query()
-	q.Set("type", "live")
+	q.Set("first", "100")
 	u.RawQuery = q.Encode()
 
 	client := &http.Client{}
@@ -96,27 +93,22 @@ func GetLiveChannelsCount(clientId string, oauthToken string) (int, error) {
 	req.Header.Set("Client-Id", clientId)
 	req.Header.Set("Authorization", "Bearer "+oauthToken)
 
-	// user_name is the Twitch username of the broadcaster
-	// user_id is the id that you might want?
-
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, fmt.Errorf("error making GET request: %v", err)
+		return nil, fmt.Errorf("error making GET request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, fmt.Errorf("error reading response body: %v", err)
+		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
-	var data map[string]interface{}
-	err = json.Unmarshal(body, &data)
+	var streamsResponse models.Top100StreamsResponse
+	err = json.Unmarshal(body, &streamsResponse)
 	if err != nil {
-		return 0, fmt.Errorf("error unmarshaling JSON response: %v", err)
+		return nil, fmt.Errorf("error parsing JSON response: %v", err)
 	}
 
-	fmt.Printf("Data is %v\n", data)
-
-	return 0, nil
+	return streamsResponse.Data, nil
 }
