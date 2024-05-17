@@ -10,6 +10,8 @@ const (
 	TWITCH_PUBSUB_URL         = "pubsub-edge.twitch.tv"
 	TWITCH_EVENT_SUB_WSS      = "eventsub.wss.twitch.tv"
 	TWITCH_OAUTH_REQUEST_TYPE = "client_credentials"
+	// Topics list - used when creating/initializing Kafka topics for persistent/real-time data storage
+	KAFKA_TOPICS = "top_streamers,streamer_stats,streamer_chat,viewer_demographics,trending_games"
 	// Specific subscription types
 	TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE = "channel.chat.message"
 )

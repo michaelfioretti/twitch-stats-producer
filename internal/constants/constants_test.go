@@ -37,6 +37,13 @@ func TestTwitchOauthRequestType(t *testing.T) {
 	}
 }
 
+func TestKafkaTopics(t *testing.T) {
+	expected := "top_streamers,streamer_stats,streamer_chat,viewer_demographics,trending_games"
+	if KAFKA_TOPICS != expected {
+		t.Errorf("Expected KAFKA_TOPICS to be %s, but got %s", expected, KAFKA_TOPICS)
+	}
+}
+
 func TestTwitchUsersApiUrl(t *testing.T) {
 	expected := "https://api.twitch.tv/helix/users"
 	if TWITCH_USERS_API_URL != expected {
