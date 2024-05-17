@@ -18,11 +18,6 @@ const (
 	twitchWelcomeMessage = "session_welcome"
 )
 
-// type TwitchMessage struct {
-// 	Metadata struct `json:"type"`
-// 	Payload string `json:"data"`
-// }
-
 type TwitchMessageRequest struct {
 	Type      string `json:"type"`
 	Version   string `json:"version"`
@@ -85,7 +80,9 @@ func HandleWelcomeMessage(conn *websocket.Conn) {
 }
 
 // GetTop100Livestreams fetches the current number of live channels from Twitch API
-func GetTop100Livestreams(clientId string, oauthToken string) ([]models.Stream, error) {
+func GetTop100Livestreams(oauthToken string) ([]models.Stream, error) {
+	clientId, _ := LoadTwitchKeys()
+
 	u := url.URL{Scheme: "https", Host: "api.twitch.tv", Path: "/helix/streams"}
 	q := u.Query()
 	q.Set("first", "100")

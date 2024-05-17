@@ -27,8 +27,6 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	clientId, _ := twitchhelper.LoadTwitchKeys()
-
 	// First, get the OAuth token
 	err, oauthToken := twitchhelper.SendOauthRequest()
 
@@ -36,7 +34,7 @@ func main() {
 		log.Fatal("Error getting OAuth token:", err)
 	}
 
-	topLivestreams, err := twitchhelper.GetTop100Livestreams(clientId, oauthToken.AccessToken)
+	topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
 	if err != nil {
 		fmt.Printf("Error getting livestreams: %v\n", err)
 		os.Exit(1)
