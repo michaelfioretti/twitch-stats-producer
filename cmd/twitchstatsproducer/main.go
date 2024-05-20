@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"net"
@@ -12,35 +11,6 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/models"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
 )
-
-func readStreamerChat(streamer string, conn net.Conn, streamerMsgChannel chan<- models.IRCChatMessageData) {
-	reader := bufio.NewReader(conn)
-	for {
-		line, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading:", err)
-			return
-		}
-
-		// Check if the line is a PING message (keep the connection alive)
-		if strings.HasPrefix(line, "PING") {
-			fmt.Fprintf(conn, "PONG :tmi.twitch.tv\r\n")
-		} else {
-			// Process the chat message here (e.g., print it)
-			fmt.Printf("[%s] %s", streamer, line)
-			streamerMsgChannel <- models.IRCChatMessageData{Streamer: streamer, Message: line}
-		}
-	}
-}
-
-// processData receives data from the channel and processes it.
-func processData(dataChan <-chan models.IRCChatMessageData) {
-	fmt.Println("Processing data...")
-	for data := range dataChan {
-		fmt.Printf("Channel: %s,  Message: %s\n", data.Streamer, data.Message)
-		// Your data processing logic here
-	}
-}
 
 func main() {
 	go kafkahelper.ValidateBaseTopics()
@@ -55,7 +25,7 @@ func main() {
 	token := "oauth:" + oauthToken.AccessToken
 
 	// Fetch the top 100 streamers, and begin parsing their Twitch chat
-	dataChan := make(chan models.IRCChatMessageData)
+	streamerChatDataChan := make(chan models.IRCChatMessageData)
 	doneChan := make(chan struct{})
 
 	topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
@@ -82,8 +52,8 @@ func main() {
 		fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
 		fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower(streamer))
 
-		go readStreamerChat(streamer, conn, dataChan)
-		go processData(dataChan)
+		go twitchhelper.ReadStreamerChat(streamer, conn, streamerChatDataChan)
+		go twitchhelper.ProcessStreamerChat(streamerChatDataChan)
 	}
 
 	<-doneChan

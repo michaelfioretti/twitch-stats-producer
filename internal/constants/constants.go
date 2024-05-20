@@ -16,4 +16,5 @@ const (
 	TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE = "channel.chat.message"
 	TWITCH_IRC_URL                        = "irc.chat.twitch.tv:6667"
 	TWITCH_USERNAME                       = "justinfan12345"
+	TWITCH_PONG_URL                       = "PONG :tmi.twitch.tv"
 )
