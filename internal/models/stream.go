@@ -18,3 +18,12 @@ type Stream struct {
 	TagIDs       []string `json:"tag_ids"`
 	IsMature     bool     `json:"is_mature"`
 }
+
+// TwitchGame represents a game object from the Twitch API
+type TwitchGame struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	BoxArtURL   string `json:"box_art_url"`
+	ViewerCount int    `json:"viewer_count"`
+	Popularity  int    `json:"popularity"`
+}

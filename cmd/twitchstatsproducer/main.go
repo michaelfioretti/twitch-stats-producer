@@ -6,23 +6,11 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkaproducer"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
-	"github.com/segmentio/kafka-go"
 )
 
-func produceMessages() {
-	go kafkahelper.ValidateBaseTopics()
-
-	msg1 := kafka.Message{Value: []byte("one!")}
-	msg2 := kafka.Message{Value: []byte("two!")}
-	msg3 := kafka.Message{Value: []byte("three!")}
-
-	kafkaproducer.WriteDataToKafka("my-topic", []kafka.Message{msg1, msg2, msg3})
-}
-
 func main() {
+	// go kafkahelper.ValidateBaseTopics()
 	// Helper code to keep server running (for now!)
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)

@@ -112,3 +112,44 @@ func GetTop100Livestreams(oauthToken string) ([]models.Stream, error) {
 
 	return streamsResponse.Data, nil
 }
+
+func getTrendingGames(accessToken string) ([]models.TwitchGame, error) {
+	clientId, _ := LoadTwitchKeys()
+	// Twitch API Endpoint for Get Top Games
+	url := "https://api.twitch.tv/helix/games/top"
+
+	// Create a new HTTP request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set Twitch API Client ID (Get yours from the Twitch Developer Console)
+	req.Header.Set("Client-Id", clientId)
+
+	// Set Authorization Header if you have a Twitch App Access Token (Optional)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Check for API errors
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Twitch API Error: %s", resp.Status)
+	}
+
+	// Parse the JSON response
+	var response struct {
+		Data []models.TwitchGame `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, err
+	}
+
+	return response.Data, nil
+}
