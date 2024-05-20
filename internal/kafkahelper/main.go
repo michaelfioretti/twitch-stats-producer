@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
 )
@@ -26,14 +27,8 @@ func GetBrokerAddresses() []string {
 }
 
 func GetAvailableTopics() []string {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	topics := os.Getenv("KAFKA_TOPICS")
-	availableTopics := strings.Split(topics, ",")
+	topicsStr := constants.KAFKA_TOPICS
+	availableTopics := strings.Split(topicsStr, ",")
 	return availableTopics
 }
 
