@@ -14,4 +14,7 @@ const (
 	KAFKA_TOPICS = "top_streamers,streamer_stats,streamer_chat,viewer_demographics,trending_games"
 	// Specific subscription types
 	TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE = "channel.chat.message"
+	TWITCH_IRC_URL                        = "irc.chat.twitch.tv:6667"
+	TWITCH_USERNAME                       = "justinfan12345"
+	TWITCH_PONG_URL                       = "PONG :tmi.twitch.tv"
 )
