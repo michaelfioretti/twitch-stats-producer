@@ -57,3 +57,17 @@ func TestTwitchChannelChatSubscriptionType(t *testing.T) {
 		t.Errorf("Expected TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE to be %s, but got %s", expected, TWITCH_CHANNEL_CHAT_SUBSCRIPTION_TYPE)
 	}
 }
+
+func TestTwitchIrcUrl(t *testing.T) {
+	expected := "irc.chat.twitch.tv:6667"
+	if TWITCH_IRC_URL != expected {
+		t.Errorf("Expected TWITCH_IRC_URL to be %s, but got %s", expected, TWITCH_IRC_URL)
+	}
+}
+
+func TestTwitchUsername(t *testing.T) {
+	expected := "justinfan12345"
+	if TWITCH_USERNAME != expected {
+		t.Errorf("Expected TWITCH_USERNAME to be %s, but got %s", expected, TWITCH_USERNAME)
+	}
+}
