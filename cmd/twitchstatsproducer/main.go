@@ -9,6 +9,7 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/models"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatstreaming"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
 )
 
@@ -41,8 +42,8 @@ func main() {
 	// Send request for tags and extra metadata
 	fmt.Fprintf(conn, constants.TWITCH_TAGS_REQUEST_CMD)
 
-	go twitchhelper.ReadStreamerChat("piratesoftware", conn, streamerChatDataChan)
-	go twitchhelper.ProcessStreamerChat(streamerChatDataChan)
+	go twitchchatstreaming.ReadStreamerChat("piratesoftware", conn, streamerChatDataChan)
+	go twitchchatstreaming.ProcessStreamerChat(streamerChatDataChan)
 
 	// topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
 	// if err != nil {

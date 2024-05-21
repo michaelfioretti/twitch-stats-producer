@@ -1,4 +1,4 @@
-package twitchhelper
+package twitchchatstreaming
 
 import (
 	"bufio"
@@ -9,15 +9,13 @@ import (
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/models"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatparser"
 )
 
 func ReadStreamerChat(streamer string, conn net.Conn, streamerMsgChannel chan<- models.IRCChatMessageData) {
-	fmt.Printf("Now reading streamer %s chat\n", streamer)
-
 	reader := bufio.NewReader(conn)
 	for {
 		line, err := reader.ReadString('\n')
-		fmt.Print("Got a line?????")
 		if err != nil {
 			fmt.Println("Error reading:", err)
 			return
@@ -28,6 +26,8 @@ func ReadStreamerChat(streamer string, conn net.Conn, streamerMsgChannel chan<- 
 		if strings.HasPrefix(line, "PING") {
 			fmt.Fprintf(conn, "%s\r\n", constants.TWITCH_PONG_URL)
 		} else {
+			parsedMessage := twitchchatparser.ParseMessage(line)
+			fmt.Printf("%v", parsedMessage)
 			streamerMsgChannel <- models.IRCChatMessageData{Streamer: streamer, Message: line, Timestamp: time.Now().String()}
 		}
 	}
@@ -35,7 +35,6 @@ func ReadStreamerChat(streamer string, conn net.Conn, streamerMsgChannel chan<- 
 
 // processData receives data from the channel and processes it.
 func ProcessStreamerChat(dataChan <-chan models.IRCChatMessageData) {
-	fmt.Print("need to process...")
 	for data := range dataChan {
 		// Your data processing logic here
 		fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
