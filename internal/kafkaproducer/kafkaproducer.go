@@ -54,8 +54,9 @@ func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
 	brokerAddresses := kafkahelper.GetBrokerAddresses()
 
 	return kafka.WriterConfig{
-		Brokers:  brokerAddresses,
-		Topic:    topic,
-		Balancer: &kafka.LeastBytes{},
+		Brokers:          brokerAddresses,
+		Topic:            topic,
+		Balancer:         &kafka.RoundRobin{},
+		CompressionCodec: kafka.Snappy.Codec(),
 	}, nil
 }
