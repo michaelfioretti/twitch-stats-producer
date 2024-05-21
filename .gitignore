@@ -19,3 +19,12 @@
 
 # Go workspace file
 go.work
+
+# Build/binary outputs
+dist/
+
+# Configuration variables
+.env
+
+# VS Code
+.vscode
