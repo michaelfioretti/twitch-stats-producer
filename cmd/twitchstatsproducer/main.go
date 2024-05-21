@@ -36,6 +36,7 @@ func main() {
 	}
 
 	// 4. Authenticate and join channels
+	fmt.Fprintf(conn, constants.TWITCH_TAGS_REQUEST_CMD)
 	fmt.Fprintf(conn, "PASS %s\r\n", token)
 	fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
 	fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower("piratesoftware"))

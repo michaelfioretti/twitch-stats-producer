@@ -17,5 +17,5 @@ const (
 	TWITCH_IRC_URL                        = "irc.chat.twitch.tv:6667"
 	TWITCH_USERNAME                       = "justinfan12345"
 	TWITCH_PONG_URL                       = "PONG :tmi.twitch.tv"
-	TWITCH_TAGS_REQUEST_CMD               = "CAP REQ :twitch.tv/tags twitch.tv/commands"
+	TWITCH_TAGS_REQUEST_CMD               = "CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands"
 )

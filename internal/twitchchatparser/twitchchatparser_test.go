@@ -10,8 +10,8 @@ func TestParseMessage(t *testing.T) {
 	if parsedMessage.Tags["badge-info"] != "" {
 		t.Errorf("Expected badge-info to be empty, got %s", parsedMessage.Tags["badge-info"])
 	}
-	if parsedMessage.Tags["badges"] != "broadcaster/1" {
-		t.Errorf("Expected badges to be broadcaster/1, got %s", parsedMessage.Tags["badges"])
+	if parsedMessage.Tags["badges"] != "map[broadcaster:1]" {
+		t.Errorf("Expected badges to be map[broadcaster:1], got %s", parsedMessage.Tags["badges"])
 	}
 	if parsedMessage.Source["nick"] != "abc" {
 		t.Errorf("Expected nick to be abc, got %s", parsedMessage.Source["nick"])
@@ -30,8 +30,8 @@ func TestParseTags(t *testing.T) {
 	if parsedTags["badge-info"] != "" {
 		t.Errorf("Expected badge-info to be empty, got %s", parsedTags["badge-info"])
 	}
-	if parsedTags["badges"] != "broadcaster/1" {
-		t.Errorf("Expected badges to be broadcaster/1, got %s", parsedTags["badges"])
+	if parsedTags["badges"] != "map[broadcaster:1]" {
+		t.Errorf("Expected badges to be map[broadcaster:1], got %s", parsedTags["badges"])
 	}
 	if parsedTags["color"] != "#0000FF" {
 		t.Errorf("Expected color to be #0000FF, got %s", parsedTags["color"])
