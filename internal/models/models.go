@@ -3,8 +3,9 @@ package models
 // Data is a struct to hold parsed IRC data.
 type IRCChatMessageData struct {
 	// Add fields as needed (e.g., Command, Channel, User, Message)
-	Streamer string
-	Message  string
+	Streamer  string
+	Message   string
+	Timestamp string
 }
 
 type Top100StreamsResponse struct {
