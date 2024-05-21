@@ -21,7 +21,6 @@ func ReadStreamerChat(streamer string, conn net.Conn, streamerMsgChannel chan<- 
 			return
 		}
 
-		fmt.Print(line)
 		// Check if the line is a PING message (keep the connection alive)
 		if strings.HasPrefix(line, "PING") {
 			fmt.Fprintf(conn, "%s\r\n", constants.TWITCH_PONG_URL)
@@ -43,7 +42,6 @@ func ProcessStreamerChat(dataChan <-chan models.IRCChatMessageData) {
 		if twitchchatparser.ShouldProcessMessage(data.Message) {
 			parsedMessage := twitchchatparser.ParseMessage(data.Message)
 			fmt.Printf("%v", parsedMessage)
-			fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
 			// msgStr := fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
 			// msg := kafka.Message{Value: []byte(msgStr)}
 			// kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})

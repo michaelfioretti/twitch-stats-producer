@@ -7,14 +7,40 @@ package kafkaproducer
 import (
 	"context"
 	"log"
+	"sync"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
 	"github.com/segmentio/kafka-go"
 )
 
-func WriteDataToKafka(topic string, messages []kafka.Message) {
-	producer := CreateKafkaProducer(topic)
+var (
+	producers       = make(map[string]*kafka.Writer)
+	producerConfigs = make(map[string]kafka.WriterConfig)
+	mutex           sync.Mutex
+)
 
+func InitKafkaProducer(topic string) error {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if _, ok := producers[topic]; ok {
+		return nil
+	}
+
+	producerConfig, err := getKafkaProducerConfig(topic)
+	if err != nil {
+		return err
+	}
+
+	producer := kafka.NewWriter(producerConfig)
+	producers[topic] = producer
+	producerConfigs[topic] = producerConfig
+
+	return nil
+}
+
+func WriteDataToKafka(topic string, messages []kafka.Message) {
+	producer := producers[topic]
 	for _, message := range messages {
 		err := producer.WriteMessages(context.Background(), message)
 
@@ -24,18 +50,12 @@ func WriteDataToKafka(topic string, messages []kafka.Message) {
 	}
 }
 
-func CreateKafkaProducer(topic string) *kafka.Writer {
-	producerConfig := GetKafkaProducerConfig(topic)
-	log.Default().Println("Creating Kafka producer...")
-	return kafka.NewWriter(kafka.WriterConfig(producerConfig))
-}
-
-func GetKafkaProducerConfig(topic string) kafka.WriterConfig {
+func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
 	brokerAddresses := kafkahelper.GetBrokerAddresses()
 
 	return kafka.WriterConfig{
 		Brokers:  brokerAddresses,
 		Topic:    topic,
 		Balancer: &kafka.LeastBytes{},
-	}
+	}, nil
 }
