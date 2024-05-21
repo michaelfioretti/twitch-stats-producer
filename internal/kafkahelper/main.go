@@ -1,6 +1,7 @@
 package kafkahelper
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -81,6 +82,7 @@ func ValidateBaseTopics() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
 	defer controllerConn.Close()
 
 	// Loop and create topic configs
@@ -94,8 +96,10 @@ func ValidateBaseTopics() {
 		})
 	}
 
+	fmt.Print("Creating topics...\n")
+
 	err = controllerConn.CreateTopics(topicConfigs...)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 }

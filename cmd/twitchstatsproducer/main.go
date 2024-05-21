@@ -28,33 +28,43 @@ func main() {
 	streamerChatDataChan := make(chan models.IRCChatMessageData)
 	doneChan := make(chan struct{})
 
-	topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
+	conn, err := net.Dial("tcp", constants.TWITCH_IRC_URL)
 	if err != nil {
-		log.Fatalf("Error getting livestreams: %v\n", err)
+		fmt.Println("Error connecting:", err)
+		return
 	}
 
-	fmt.Print("Here are the top 100 livestreams, the game, and the streamer\n")
-	fmt.Print("Count: ", len(topLivestreams), "\n\n")
-	for i, stream := range topLivestreams {
-		fmt.Printf("%d: Streamer: %s, with: %d viewers\n", i, stream.UserName, stream.ViewerCount)
-	}
+	// 4. Authenticate and join channels
+	fmt.Fprintf(conn, "PASS %s\r\n", token)
+	fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
+	fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower("piratesoftware"))
+	// Send request for tags and extra metadata
+	fmt.Fprintf(conn, constants.TWITCH_TAGS_REQUEST_CMD)
 
-	for _, stream := range topLivestreams {
-		streamer := stream.UserName
-		conn, err := net.Dial("tcp", constants.TWITCH_IRC_URL)
-		if err != nil {
-			fmt.Println("Error connecting:", err)
-			return
-		}
+	go twitchhelper.ReadStreamerChat("piratesoftware", conn, streamerChatDataChan)
+	go twitchhelper.ProcessStreamerChat(streamerChatDataChan)
 
-		// 4. Authenticate and join channels
-		fmt.Fprintf(conn, "PASS %s\r\n", token)
-		fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
-		fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower(streamer))
+	// topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
+	// if err != nil {
+	// 	log.Fatalf("Error getting livestreams: %v\n", err)
+	// }
 
-		go twitchhelper.ReadStreamerChat(streamer, conn, streamerChatDataChan)
-		go twitchhelper.ProcessStreamerChat(streamerChatDataChan)
-	}
+	// for _, stream := range topLivestreams {
+	// 	streamer := stream.UserName
+	// 	conn, err := net.Dial("tcp", constants.TWITCH_IRC_URL)
+	// 	if err != nil {
+	// 		fmt.Println("Error connecting:", err)
+	// 		return
+	// 	}
+
+	// 	// 4. Authenticate and join channels
+	// 	fmt.Fprintf(conn, "PASS %s\r\n", token)
+	// 	fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
+	// 	fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower(streamer))
+
+	// 	go twitchhelper.ReadStreamerChat(streamer, conn, streamerChatDataChan)
+	// 	go twitchhelper.ProcessStreamerChat(streamerChatDataChan)
+	// }
 
 	<-doneChan
 }
