@@ -33,6 +33,30 @@ type ParsedTwitchMessage struct {
 	Parameters string
 }
 
+func ShouldProcessMessage(message string) bool {
+	// If the message is a default ACK/NAK message, then we can ignore it
+	if strings.Contains(message, "ACK") || strings.Contains(message, "NAK") {
+		return false
+	}
+
+	// If any one of the following codes is found, then we can ignore the message because
+	// it is not a chat message.
+	ignoreCodes := []string{"NAK", "ACK", "001", "002", "003", "004", "353", "366", "372", "375", "376", "421"}
+
+	for _, code := range ignoreCodes {
+		if strings.Contains(message, code) {
+			return false
+		}
+	}
+
+	// Now, we only want to process messages if they are a PING, a RECONNECT, or a PRIVMSG
+	return containsValidCommand(message)
+}
+
+func containsValidCommand(message string) bool {
+	return strings.Contains(message, "PING") || strings.Contains(message, "RECONNECT") || strings.Contains(message, "PRIVMSG")
+}
+
 func ParseMessage(message string) *ParsedTwitchMessage {
 	parsedMessage := &ParsedTwitchMessage{}
 	idx := 0
@@ -168,10 +192,23 @@ func parseCommand(rawCommandComponent string) map[string]string {
 	case "001":
 		parsedCommand["command"] = commandParts[0]
 		parsedCommand["channel"] = commandParts[1]
+	case "002":
+	case "003":
+	case "004":
+	case "353":
+	case "366":
+	case "372":
+	case "375":
+	case "376":
 	default:
+		if strings.HasPrefix(commandParts[0], "00") {
+			fmt.Printf("Ignoring welcome message/command: %s\n", commandParts[0])
+			return nil
+		}
 		fmt.Printf("\nUnexpected command: %s\n", commandParts[0])
 		return nil
 	}
+
 	return parsedCommand
 }
 

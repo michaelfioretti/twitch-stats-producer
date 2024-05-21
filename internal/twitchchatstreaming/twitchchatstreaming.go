@@ -26,20 +26,27 @@ func ReadStreamerChat(streamer string, conn net.Conn, streamerMsgChannel chan<- 
 		if strings.HasPrefix(line, "PING") {
 			fmt.Fprintf(conn, "%s\r\n", constants.TWITCH_PONG_URL)
 		} else {
-			parsedMessage := twitchchatparser.ParseMessage(line)
-			fmt.Printf("%v", parsedMessage)
 			streamerMsgChannel <- models.IRCChatMessageData{Streamer: streamer, Message: line, Timestamp: time.Now().String()}
 		}
 	}
 }
 
-// processData receives data from the channel and processes it.
+/*
+ProcessStreamerChat will take the base message, timestamp, etc and format it
+into a ParsedTwitchMessage struct. This struct will then be sent to the
+appropriate Kafka topic.
+*/
 func ProcessStreamerChat(dataChan <-chan models.IRCChatMessageData) {
 	for data := range dataChan {
-		// Your data processing logic here
-		fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
-		// msgStr := fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
-		// msg := kafka.Message{Value: []byte(msgStr)}
-		// kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
+		// First, check to see if we should process the message. If yes, then
+		// we will parse and send it to the appropriate Kafka topic.
+		if twitchchatparser.ShouldProcessMessage(data.Message) {
+			parsedMessage := twitchchatparser.ParseMessage(data.Message)
+			fmt.Printf("%v", parsedMessage)
+			fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
+			// msgStr := fmt.Sprintf("Channel: %s,  Message: %s, Timestamp: %s\n", data.Streamer, data.Message, data.Timestamp)
+			// msg := kafka.Message{Value: []byte(msgStr)}
+			// kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
+		}
 	}
 }
