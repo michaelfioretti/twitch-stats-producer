@@ -39,11 +39,11 @@ func main() {
 	fmt.Fprintf(conn, constants.TWITCH_TAGS_REQUEST_CMD)
 	fmt.Fprintf(conn, "PASS %s\r\n", token)
 	fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
-	fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower("piratesoftware"))
+	fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower("shroud"))
 	// Send request for tags and extra metadata
 	fmt.Fprintf(conn, constants.TWITCH_TAGS_REQUEST_CMD)
 
-	go twitchchatstreaming.ReadStreamerChat("piratesoftware", conn, streamerChatDataChan)
+	go twitchchatstreaming.ReadStreamerChat("shroud", conn, streamerChatDataChan)
 	go twitchchatstreaming.ProcessStreamerChat(streamerChatDataChan)
 
 	// topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)

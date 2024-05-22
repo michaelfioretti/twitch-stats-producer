@@ -57,7 +57,7 @@ func containsValidCommand(message string) bool {
 	return strings.Contains(message, "PING") || strings.Contains(message, "RECONNECT") || strings.Contains(message, "PRIVMSG")
 }
 
-func ParseMessage(message string) *ParsedTwitchMessage {
+func ParseMessage(message string) *TwitchChatMessage {
 	parsedMessage := &ParsedTwitchMessage{}
 	idx := 0
 
@@ -92,7 +92,25 @@ func ParseMessage(message string) *ParsedTwitchMessage {
 		}
 	}
 
-	return parsedMessage
+	fmt.Printf("Raw: %s\n", message)
+	fmt.Print(parsedMessage)
+
+	// Create a new instance of TwitchChatMessage and map the data
+	chatMessage := &TwitchChatMessage{
+		Timestamp:    time.Now(),
+		Channel:      parsedMessage.Command["channel"],
+		Username:     parsedMessage.Source["nick"],
+		UserID:       parsedMessage.Tags["user-id"],
+		DisplayName:  parsedMessage.Tags["display-name"],
+		MessageText:  parsedMessage.Parameters,
+		IsModerator:  parsedMessage.Tags["mod"] == "1",
+		IsSubscriber: parsedMessage.Tags["subscriber"] == "1",
+		Bits:         0,         // Set the default value for bits
+		Emotes:       []Emote{}, // Set the default value for emotes
+		MessageType:  parsedMessage.Command["command"],
+	}
+
+	return chatMessage
 }
 
 func parseTags(tags string) map[string]string {

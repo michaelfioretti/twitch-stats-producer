@@ -2,6 +2,8 @@ package twitchchatparser
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestShouldProcessMessage(t *testing.T) {
@@ -82,23 +84,14 @@ func TestShouldProcessMessage(t *testing.T) {
 }
 
 func TestParseMessage(t *testing.T) {
-	message := "@badge-info=;badges=broadcaster/1;color=#0000FF;display-name=abc;emotes=;id=d3152743-9e76-4c2f-a851-8ec9435472b7;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1642782604907;turbo=0;user-id=123456789;user-type= :abc!abc@abc.tmi.twitch.tv PRIVMSG #xyz :-asd"
+	// Test a basic message
+	message := ":nickname!username@host.tmi.twitch.tv PRIVMSG #streamer :Hey now brown cow"
+	// message := ":nickname!username@host.tmi.twitch.tv PRIVMSG #streamer :!xdefiantsens"
 	parsedMessage := ParseMessage(message)
-	if parsedMessage.Tags["badge-info"] != "" {
-		t.Errorf("Expected badge-info to be empty, got %s", parsedMessage.Tags["badge-info"])
-	}
-	if parsedMessage.Tags["badges"] != "map[broadcaster:1]" {
-		t.Errorf("Expected badges to be map[broadcaster:1], got %s", parsedMessage.Tags["badges"])
-	}
-	if parsedMessage.Source["nick"] != "abc" {
-		t.Errorf("Expected nick to be abc, got %s", parsedMessage.Source["nick"])
-	}
-	if parsedMessage.Command["command"] != "PRIVMSG" {
-		t.Errorf("Expected command to be PRIVMSG, got %s", parsedMessage.Command["command"])
-	}
-	if parsedMessage.Parameters != "-asd" {
-		t.Errorf("Expected parameters to be -asd, got %s", parsedMessage.Parameters)
-	}
+	assert.Equal(t, parsedMessage.Channel, "#streamer")
+	assert.Equal(t, parsedMessage.Username, "nickname")
+	assert.Equal(t, parsedMessage.MessageText, "Hey now brown cow")
+	assert.Equal(t, parsedMessage.UserID, "")
 }
 
 func TestParseTags(t *testing.T) {
