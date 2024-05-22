@@ -86,12 +86,16 @@ func TestShouldProcessMessage(t *testing.T) {
 func TestParseMessage(t *testing.T) {
 	// Test a basic message
 	message := ":nickname!username@host.tmi.twitch.tv PRIVMSG #streamer :Hey now brown cow"
-	// message := ":nickname!username@host.tmi.twitch.tv PRIVMSG #streamer :!xdefiantsens"
+
 	parsedMessage := ParseMessage(message)
 	assert.Equal(t, parsedMessage.Channel, "#streamer")
 	assert.Equal(t, parsedMessage.Username, "nickname")
 	assert.Equal(t, parsedMessage.MessageText, "Hey now brown cow")
 	assert.Equal(t, parsedMessage.UserID, "")
+
+	// Make sure commands are read correctly
+	// message = ":nickname!username@host.tmi.twitch.tv PRIVMSG #streamer :!command"
+	// parsedMessage = ParseMessage(message)
 }
 
 func TestParseTags(t *testing.T) {

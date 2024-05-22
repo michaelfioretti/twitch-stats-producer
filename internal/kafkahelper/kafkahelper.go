@@ -1,7 +1,6 @@
 package kafkahelper
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -66,8 +65,6 @@ func ValidateBaseTopics() {
 			ReplicationFactor: replicationCount,
 		})
 	}
-
-	fmt.Print("Creating topics...\n")
 
 	err = controllerConn.CreateTopics(topicConfigs...)
 	if err != nil {

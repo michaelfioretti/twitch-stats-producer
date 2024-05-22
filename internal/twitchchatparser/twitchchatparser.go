@@ -92,9 +92,6 @@ func ParseMessage(message string) *TwitchChatMessage {
 		}
 	}
 
-	fmt.Printf("Raw: %s\n", message)
-	fmt.Print(parsedMessage)
-
 	// Create a new instance of TwitchChatMessage and map the data
 	chatMessage := &TwitchChatMessage{
 		Timestamp:    time.Now(),
