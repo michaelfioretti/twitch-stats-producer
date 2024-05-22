@@ -6,7 +6,6 @@ package kafkaproducer
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"sync"
 
@@ -44,7 +43,6 @@ func WriteDataToKafka(topic string, messages []kafka.Message) {
 	InitKafkaProducer(topic)
 
 	producer := producers[topic]
-	fmt.Print(producer)
 	for _, message := range messages {
 		err := producer.WriteMessages(context.Background(), message)
 

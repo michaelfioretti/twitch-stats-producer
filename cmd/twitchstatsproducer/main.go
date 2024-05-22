@@ -29,6 +29,17 @@ func main() {
 	streamerChatDataChan := make(chan models.IRCChatMessageData)
 	doneChan := make(chan struct{})
 
+	// conn, err := net.Dial("tcp", constants.TWITCH_IRC_URL)
+
+	// fmt.Fprintf(conn, "PASS %s\r\n", token)
+	// fmt.Fprintf(conn, "NICK %s\r\n", constants.TWITCH_USERNAME) // Your Twitch username
+	// fmt.Fprintf(conn, "JOIN #%s\r\n", strings.ToLower("piratesoftware"))
+	// // Send request for tags and extra metadata
+	// fmt.Fprintf(conn, constants.TWITCH_TAGS_REQUEST_CMD)
+
+	// go twitchchatstreaming.ReadStreamerChat("piratesoftware", conn, streamerChatDataChan)
+	// go twitchchatstreaming.ProcessStreamerChat(streamerChatDataChan)
+
 	topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
 	if err != nil {
 		log.Fatalf("Error getting livestreams: %v\n", err)

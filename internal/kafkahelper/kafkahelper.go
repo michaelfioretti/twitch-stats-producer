@@ -13,13 +13,6 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-// Create interface so that we can use dependency injection
-// to mock these functions during tests
-type KafkaHelper interface {
-	GetBrokerAddresses() []string
-	ValidateBaseTopics()
-}
-
 func GetBrokerAddresses() []string {
 	// load .env file
 	err := godotenv.Load(".env")
