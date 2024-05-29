@@ -1,3 +1,6 @@
+dev:
+	go run cmd/twitchstatsproducer/main.go
+
 proto:
 	make clean
 	echo "Generating proto files"

@@ -5,22 +5,10 @@ import (
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v2"
+	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 )
 
-// TwitchMessage represents a formatted Twitch chat message.
-type TwitchMessage struct {
-	Username   string
-	Channel    string
-	Message    string
-	Badges     []string
-	Bits       int
-	Mod        int
-	Subscribed int
-	Color      string
-	RoomID     string
-}
-
-func ParseTwitchMessage(message twitch.PrivateMessage) TwitchMessage {
+func ParseTwitchMessage(message twitch.PrivateMessage) *models.TwitchMessage {
 	// Extract the username from the message sender.
 	username := message.User.Name
 
@@ -43,7 +31,7 @@ func ParseTwitchMessage(message twitch.PrivateMessage) TwitchMessage {
 	}
 
 	// Extract the number of bits cheered (if any).
-	bitsCheered, _ := strconv.Atoi(message.Tags["bits"])
+	bitsCheered, _ := strconv.ParseInt(message.Tags["bits"], 10, 32)
 
 	// Get the channel name from the message tags.
 	channel := message.Tags["room-id"]
@@ -52,14 +40,14 @@ func ParseTwitchMessage(message twitch.PrivateMessage) TwitchMessage {
 	mod, _ := strconv.Atoi(message.Tags["mod"])
 
 	// Return the structured data.
-	return TwitchMessage{
+	return &models.TwitchMessage{
 		Username:   username,
 		Channel:    message.Channel,
 		Message:    messageText,
 		Badges:     badges,
-		Bits:       bitsCheered,
-		Mod:        mod,
-		Subscribed: subscribed,
+		Bits:       int32(bitsCheered),
+		Mod:        int32(mod),
+		Subscribed: int32(subscribed),
 		Color:      message.Tags["color"],
 		RoomID:     "#" + channel,
 	}

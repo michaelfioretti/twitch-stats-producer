@@ -1,9 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
@@ -12,6 +12,7 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatparser"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
 	"github.com/segmentio/kafka-go"
+	"google.golang.org/protobuf/proto"
 )
 
 func main() {
@@ -48,18 +49,28 @@ func main() {
 
 	go client.Join(streamerNames...)
 
+	// Listen to all messages in the channel, and update
+	// Kafka cluster in batches
+
+	batch := make([]kafka.Message, 0)
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		// Parse the incoming message.
 		parsedMessage := twitchchatparser.ParseTwitchMessage(message)
 
-		str, err := json.Marshal(parsedMessage)
+		twitchMessage, err := proto.Marshal(parsedMessage)
 		if err != nil {
-			log.Printf("Error marshaling parsed message: %v\n", err)
+			log.Fatalf("Error marshaling message: %v\n", err)
 			return
 		}
 
-		msg := kafka.Message{Value: str}
-		go kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
+		msg := kafka.Message{Value: twitchMessage}
+		batch = append(batch, msg)
+
+		if len(batch) == 100 {
+			log.Println("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
+			go kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
+			batch = make([]kafka.Message, 0)
+		}
 	})
 
 	client.Connect()
