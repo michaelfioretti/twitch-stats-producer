@@ -31,8 +31,6 @@ func main() {
 		log.Fatalf("Error getting livestreams: %v\n", err)
 	}
 
-	// Fetch the top 100 streamers, and begin parsing their Twitch chat
-	// streamerChatDataChan := make(chan models.IRCChatMessageData)
 	doneChan := make(chan struct{})
 
 	// Connect to Twitch IRC using your Twitch username and auth token.

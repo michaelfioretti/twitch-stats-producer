@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package models;
+
+message Stream {
+  string id = 1;
+  string user_id = 2;
+  string user_name = 3;
+  string game_id = 4;
+  string type = 5;
+  string title = 6;
+  int32 viewer_count = 7;
+  string started_at = 8;
+  string language = 9;
+  string thumbnail_url = 10;
+  repeated string tag_ids = 11;
+  bool is_mature = 12;
+}
+
+message Top100StreamsResponse {
+  repeated Stream data = 1;
+}
