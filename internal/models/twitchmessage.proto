@@ -15,3 +15,14 @@ message TwitchMessage {
   string color = 8;
   string roomID = 9;
 }
+
+message Condition {
+  string broadcasterUserId = 1;
+  string moderatorUserId = 2;
+}
+
+message TwitchMessageRequest {
+  string type = 1;
+  string version = 2;
+  Condition condition = 3;
+}
