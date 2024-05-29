@@ -59,6 +59,6 @@ func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
 		Brokers:          brokerAddresses,
 		Topic:            topic,
 		Balancer:         &kafka.RoundRobin{},
-		CompressionCodec: kafka.Snappy.Codec(),
+		CompressionCodec: kafka.Lz4.Codec(),
 	}, nil
 }
