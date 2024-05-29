@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/gempir/go-twitch-irc/v2"
@@ -45,6 +46,8 @@ func main() {
 		streamerNames = append(streamerNames, stream.UserName)
 	}
 
+	fmt.Println("Streamer names: ", streamerNames)
+
 	go client.Join(streamerNames...)
 
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
@@ -57,7 +60,7 @@ func main() {
 			return
 		}
 		msg := kafka.Message{Value: str}
-		kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
+		go kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
 	})
 
 	client.Connect()
