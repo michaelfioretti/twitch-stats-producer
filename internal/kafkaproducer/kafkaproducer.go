@@ -43,12 +43,10 @@ func WriteDataToKafka(topic string, messages []kafka.Message) {
 	InitKafkaProducer(topic)
 
 	producer := producers[topic]
-	for _, message := range messages {
-		err := producer.WriteMessages(context.Background(), message)
+	err := producer.WriteMessages(context.Background(), messages...)
 
-		if err != nil {
-			log.Fatal("failed to write messages:", err)
-		}
+	if err != nil {
+		log.Fatal("failed to write messages:", err)
 	}
 }
 
