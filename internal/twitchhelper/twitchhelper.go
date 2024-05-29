@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/models"
+	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 )
 
@@ -17,26 +18,12 @@ const (
 	twitchWelcomeMessage = "session_welcome"
 )
 
-type TwitchMessageRequest struct {
-	Type      string `json:"type"`
-	Version   string `json:"version"`
-	Condition struct {
-		BroadcasterUserId string `json:"broadcaster_user_id"`
-		ModeratorUserId   string `json:"moderator_user_id"`
-	}
-}
-
-type TwitchOauthResponse struct {
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int    `json:"expires_in"`
-	TokenType   string `json:"token_type"`
-}
-
-func SendOauthRequest() (error, TwitchOauthResponse) {
+func SendOauthRequest() (error, *models.TwitchOauthResponse) {
+	var oauthResponse models.TwitchOauthResponse
 	clientId, clientSecret := LoadTwitchKeys()
 	req, err := http.NewRequest("POST", constants.TWITCH_OAUTH_URL, nil)
 	if err != nil {
-		return err, TwitchOauthResponse{}
+		return err, &models.TwitchOauthResponse{}
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -49,18 +36,23 @@ func SendOauthRequest() (error, TwitchOauthResponse) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err, TwitchOauthResponse{}
+		return err, &models.TwitchOauthResponse{}
 	}
 
 	defer resp.Body.Close()
 
-	var oauthResponse TwitchOauthResponse
-	err = json.NewDecoder(resp.Body).Decode(&oauthResponse)
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err, TwitchOauthResponse{}
+		log.Fatalf("Error reading response body: %v", err)
 	}
 
-	return nil, oauthResponse
+	err = json.Unmarshal(body, &oauthResponse)
+	if err != nil {
+		log.Fatalf("Error unmarshaling response body: %v", err)
+	}
+
+	return nil, &oauthResponse
 }
 
 func LoadTwitchKeys() (string, string) {
@@ -70,8 +62,12 @@ func LoadTwitchKeys() (string, string) {
 	return clientId, clientSecret
 }
 
-// GetTop100Livestreams fetches the current number of live channels from Twitch API
-func GetTop100Livestreams(oauthToken string) ([]models.Stream, error) {
+func GetTop100Livestreams(oauthToken string) (*models.Top100StreamsResponse, error) {
+	if oauthToken == "" {
+		return nil, fmt.Errorf("OAuth token is required")
+	}
+
+	var top100Streams models.Top100StreamsResponse
 	clientId, _ := LoadTwitchKeys()
 
 	u := url.URL{Scheme: "https", Host: "api.twitch.tv", Path: "/helix/streams"}
@@ -86,22 +82,23 @@ func GetTop100Livestreams(oauthToken string) ([]models.Stream, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error making GET request: %v", err)
+		return &top100Streams, err
 	}
+
 	defer resp.Body.Close()
 
+	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body: %v", err)
+		log.Fatalf("Error reading response body: %v", err)
 	}
 
-	var streamsResponse models.Top100StreamsResponse
-	err = json.Unmarshal(body, &streamsResponse)
+	err = json.Unmarshal(body, &top100Streams)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing JSON response: %v", err)
+		log.Fatalf("Error unmarshaling response body: %v", err)
 	}
 
-	return streamsResponse.Data, nil
+	return &top100Streams, nil
 }
 
 func GetTrendingGames(accessToken string) ([]models.TwitchGame, error) {

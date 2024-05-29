@@ -40,7 +40,7 @@ func main() {
 
 	streamerNames := make([]string, 100)
 
-	for _, stream := range topLivestreams {
+	for _, stream := range topLivestreams.Data {
 		streamerNames = append(streamerNames, stream.UserName)
 	}
 
@@ -57,6 +57,7 @@ func main() {
 			log.Printf("Error marshaling parsed message: %v\n", err)
 			return
 		}
+
 		msg := kafka.Message{Value: str}
 		go kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
 	})

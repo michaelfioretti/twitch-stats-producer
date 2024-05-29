@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,13 +54,10 @@ func TestLoadTwitchKeys(t *testing.T) {
 
 // TestTwitchMessageRequestMarshaling tests the marshaling of TwitchMessageRequest
 func TestTwitchMessageRequestMarshaling(t *testing.T) {
-	request := TwitchMessageRequest{
+	request := &models.TwitchMessageRequest{
 		Type:    twitchWelcomeMessage,
 		Version: "1.0",
-		Condition: struct {
-			BroadcasterUserId string `json:"broadcaster_user_id"`
-			ModeratorUserId   string `json:"moderator_user_id"`
-		}{
+		Condition: &models.Condition{
 			BroadcasterUserId: "123456789",
 			ModeratorUserId:   "987654321",
 		},
@@ -68,7 +66,7 @@ func TestTwitchMessageRequestMarshaling(t *testing.T) {
 	marshaled, err := json.Marshal(request)
 	assert.Nil(t, err)
 
-	unmarshaled := TwitchMessageRequest{}
+	unmarshaled := models.TwitchMessageRequest{}
 	err = json.Unmarshal(marshaled, &unmarshaled)
 	assert.Nil(t, err)
 
@@ -77,7 +75,7 @@ func TestTwitchMessageRequestMarshaling(t *testing.T) {
 
 // TestTwitchOauthResponseMarshaling tests the marshaling of TwitchOauthResponse
 func TestTwitchOauthResponseMarshaling(t *testing.T) {
-	response := TwitchOauthResponse{
+	response := models.TwitchOauthResponse{
 		AccessToken: "some_token",
 		ExpiresIn:   12345,
 		TokenType:   "bearer",
@@ -86,7 +84,7 @@ func TestTwitchOauthResponseMarshaling(t *testing.T) {
 	marshaled, err := json.Marshal(response)
 	assert.Nil(t, err)
 
-	unmarshaled := TwitchOauthResponse{}
+	unmarshaled := &models.TwitchOauthResponse{}
 	err = json.Unmarshal(marshaled, &unmarshaled)
 	assert.Nil(t, err)
 
