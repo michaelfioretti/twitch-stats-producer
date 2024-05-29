@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package models;
 
+option go_package = "github.com/michaelfioretti/twitch-stats-producer/internal/models";
+
 message TwitchMessage {
   string username = 1;
   string channel = 2;
