@@ -68,7 +68,8 @@ func main() {
 
 		if len(batch) == 100 {
 			log.Println("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
-			go kafkaproducer.WriteDataToKafka("streamer_chat", []kafka.Message{msg})
+			print(batch)
+			go kafkaproducer.WriteDataToKafka("streamer_chat", batch)
 			batch = make([]kafka.Message, 0)
 		}
 	})
