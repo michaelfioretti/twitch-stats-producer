@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gempir/go-twitch-irc/v2"
@@ -25,5 +24,4 @@ func main() {
 	go shared.TwitchClient.Connect()
 
 	http.ListenAndServe(":8080", nil)
-	fmt.Println("Server started on port 8080")
 }

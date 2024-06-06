@@ -1,7 +1,6 @@
 package twitchchatparser
 
 import (
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
 	"github.com/segmentio/kafka-go"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -39,15 +39,18 @@ func ProcessTwitchMessages() {
 		for msg := range shared.MessageChannel {
 			twitchMessage, err := proto.Marshal(msg)
 			if err != nil {
-				log.Fatalf("Error marshaling message: %v\n", err)
-				return
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Error marshaling message")
+
+				continue
 			}
 
 			msg := kafka.Message{Value: twitchMessage}
 			shared.KafkaMessageBatch = append(shared.KafkaMessageBatch, msg)
 
 			if len(shared.KafkaMessageBatch) == constants.KAFKA_MESSAGES_PER_BATCH {
-				log.Println("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
+				log.Info("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
 
 				go kafkaproducer.WriteDataToKafka("streamer_chat", shared.KafkaMessageBatch)
 

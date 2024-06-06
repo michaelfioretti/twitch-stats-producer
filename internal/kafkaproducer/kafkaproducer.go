@@ -6,11 +6,11 @@ package kafkaproducer
 
 import (
 	"context"
-	"log"
 	"sync"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
 	"github.com/segmentio/kafka-go"
+	log "github.com/sirupsen/logrus"
 )
 
 var (

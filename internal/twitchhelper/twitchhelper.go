@@ -4,13 +4,13 @@ package twitchhelper
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -96,10 +96,15 @@ func GetTop100ChannelsByStreamViewCount() []string {
 	}
 
 	streamerNames := make([]string, 0, 100)
+	totalViewCount := int32(0)
 
 	for _, stream := range top100Streams.Data {
+		totalViewCount = totalViewCount + stream.ViewerCount
 		streamerNames = append(streamerNames, stream.UserName)
+		log.Info("Streamer name: ", stream.UserName, " - View count: ", stream.ViewerCount)
 	}
+
+	log.Info("Total view count for top 100 streams: ", totalViewCount)
 
 	return streamerNames
 }

@@ -1,7 +1,6 @@
 package kafkahelper
 
 import (
-	"log"
 	"net"
 	"os"
 	"strconv"
@@ -11,6 +10,7 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
+	log "github.com/sirupsen/logrus"
 )
 
 func GetBrokerAddresses() []string {
