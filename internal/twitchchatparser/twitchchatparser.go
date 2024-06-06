@@ -30,7 +30,7 @@ func CreateTwitchClient() *twitch.Client {
 }
 
 // Used to get the initial top 100 streamers. Subsequent updates will be done in the UpdateStreamerList method
-func SubscribeToTwitchChat(client *twitch.Client) {
+func SubscribeToTwitchChat() {
 	oauthToken := twitchhelper.SendOauthRequest()
 
 	topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
@@ -44,7 +44,7 @@ func SubscribeToTwitchChat(client *twitch.Client) {
 		streamerNames = append(streamerNames, stream.UserName)
 	}
 
-	go client.Join(streamerNames...)
+	go shared.TwitchClient.Join(streamerNames...)
 }
 
 func ProcessTwitchMessages() {
@@ -59,9 +59,17 @@ func ProcessTwitchMessages() {
 			msg := kafka.Message{Value: twitchMessage}
 			shared.KafkaMessageBatch = append(shared.KafkaMessageBatch, msg)
 
-			if len(shared.KafkaMessageBatch) == 100 {
+			if len(shared.KafkaMessageBatch) == constants.KAFKA_MESSAGES_PER_BATCH {
 				log.Println("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
+
 				go kafkaproducer.WriteDataToKafka("streamer_chat", shared.KafkaMessageBatch)
+
+				shared.ProcessedMessageCount += constants.KAFKA_MESSAGES_PER_BATCH
+
+				if shared.ProcessedMessageCount >= constants.TWITCH_RESET_STREAM_MESSAGE_COUNT {
+					go UpdateStreamerList(shared.TwitchClient)
+				}
+
 				shared.KafkaMessageBatch = make([]kafka.Message, 0)
 			}
 		}

@@ -13,16 +13,16 @@ import (
 func main() {
 	go kafkahelper.ValidateBaseTopics()
 
-	client := twitchchatparser.CreateTwitchClient()
-	twitchchatparser.SubscribeToTwitchChat(client)
+	shared.TwitchClient = twitchchatparser.CreateTwitchClient()
+	twitchchatparser.SubscribeToTwitchChat()
 
-	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+	shared.TwitchClient.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		twitchMessage := twitchchatparser.ParseTwitchMessage(message)
 		shared.MessageChannel <- twitchMessage
 	})
 
 	go twitchchatparser.ProcessTwitchMessages()
-	go client.Connect()
+	go shared.TwitchClient.Connect()
 
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("Server started on port 8080")
