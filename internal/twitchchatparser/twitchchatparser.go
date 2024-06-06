@@ -5,11 +5,16 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkaproducer"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
+	"github.com/segmentio/kafka-go"
+	"google.golang.org/protobuf/proto"
 )
 
 func CreateTwitchClient() *twitch.Client {
@@ -20,8 +25,6 @@ func CreateTwitchClient() *twitch.Client {
 
 	client := twitch.NewClient(constants.TWITCH_USERNAME, token)
 	client.Capabilities = []string{twitch.TagsCapability, twitch.CommandsCapability, twitch.MembershipCapability} // Customize which capabilities are sent
-
-	client.Connect()
 
 	return client
 }
@@ -44,8 +47,29 @@ func SubscribeToTwitchChat(client *twitch.Client) {
 	go client.Join(streamerNames...)
 }
 
+func ProcessTwitchMessages() {
+	go func() {
+		for msg := range shared.MessageChannel {
+			twitchMessage, err := proto.Marshal(msg)
+			if err != nil {
+				log.Fatalf("Error marshaling message: %v\n", err)
+				return
+			}
+
+			msg := kafka.Message{Value: twitchMessage}
+			shared.KafkaMessageBatch = append(shared.KafkaMessageBatch, msg)
+
+			if len(shared.KafkaMessageBatch) == 100 {
+				log.Println("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
+				go kafkaproducer.WriteDataToKafka("streamer_chat", shared.KafkaMessageBatch)
+				shared.KafkaMessageBatch = make([]kafka.Message, 0)
+			}
+		}
+	}()
+}
+
 func UpdateStreamerList(client *twitch.Client) {
-	fmt.Println("Hey got here.....")
+	fmt.Println("HEY GOING TO UPDATE!!!!")
 }
 
 func ParseTwitchMessage(message twitch.PrivateMessage) *models.TwitchMessage {

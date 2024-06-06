@@ -10,4 +10,6 @@ const (
 	TWITCH_USERNAME           = "justinfan12345"
 	TWITCH_PONG_URL           = "PONG :tmi.twitch.tv"
 	TWITCH_TAGS_REQUEST_CMD   = "CAP REQ :twitch.tv/commands twitch.tv/tags"
+	// Number of messages that we will produce before updating the top 100 streams to watch
+	TWITCH_RESET_STREAM_MESSAGE_COUNT = 50000
 )
