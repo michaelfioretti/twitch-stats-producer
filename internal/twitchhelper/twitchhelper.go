@@ -18,12 +18,12 @@ const (
 	twitchWelcomeMessage = "session_welcome"
 )
 
-func SendOauthRequest() (error, *models.TwitchOauthResponse) {
+func SendOauthRequest() *models.TwitchOauthResponse {
 	var oauthResponse models.TwitchOauthResponse
 	clientId, clientSecret := LoadTwitchKeys()
 	req, err := http.NewRequest("POST", constants.TWITCH_OAUTH_URL, nil)
 	if err != nil {
-		return err, &models.TwitchOauthResponse{}
+		log.Fatal("Error creating request: ", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -36,7 +36,7 @@ func SendOauthRequest() (error, *models.TwitchOauthResponse) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err, &models.TwitchOauthResponse{}
+		log.Fatalf("Error sending request: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -52,7 +52,7 @@ func SendOauthRequest() (error, *models.TwitchOauthResponse) {
 		log.Fatalf("Error unmarshaling response body: %v", err)
 	}
 
-	return nil, &oauthResponse
+	return &oauthResponse
 }
 
 func LoadTwitchKeys() (string, string) {
