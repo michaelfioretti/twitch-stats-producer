@@ -29,10 +29,10 @@ func TestSendOauthRequest(t *testing.T) {
 	assert.Equal(t, "some_token", oauthResponse.AccessToken)
 }
 
-// TestGetTop100Livestreams tests the GetTop100Livestreams function
-func TestGetTop100Livestreams(t *testing.T) {
+// TestGetTop100ChannelsByStreamViewCount tests the GetTop100ChannelsByStreamViewCount function
+func TestGetTop100ChannelsByStreamViewCount(t *testing.T) {
 	oauthToken := "some_token"
-	streams, err := GetTop100Livestreams(oauthToken)
+	streams, err := GetTop100ChannelsByStreamViewCount(oauthToken)
 	assert.Nil(t, err)
 	assert.NotNil(t, streams)
 }
@@ -91,10 +91,10 @@ func TestTwitchOauthResponseMarshaling(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(response, unmarshaled))
 }
 
-// TestGetTop100LivestreamsError tests the GetTop100Livestreams function with an error
-func TestGetTop100LivestreamsError(t *testing.T) {
+// TestGetTop100ChannelsByStreamViewCountError tests the GetTop100ChannelsByStreamViewCount function with an error
+func TestGetTop100ChannelsByStreamViewCountError(t *testing.T) {
 	oauthToken := ""
-	streams, err := GetTop100Livestreams(oauthToken)
+	streams, err := GetTop100ChannelsByStreamViewCount(oauthToken)
 	assert.NotNil(t, err)
 	assert.Nil(t, streams)
 }

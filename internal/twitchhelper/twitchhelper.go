@@ -3,7 +3,6 @@ package twitchhelper
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -62,27 +61,25 @@ func LoadTwitchKeys() (string, string) {
 	return clientId, clientSecret
 }
 
-func GetTop100Livestreams(oauthToken string) (*models.Top100StreamsResponse, error) {
-	if oauthToken == "" {
-		return nil, fmt.Errorf("OAuth token is required")
-	}
+func GetTop100ChannelsByStreamViewCount() []string {
+	oauthToken := SendOauthRequest()
 
 	var top100Streams models.Top100StreamsResponse
 	clientId, _ := LoadTwitchKeys()
 
 	u := url.URL{Scheme: "https", Host: "api.twitch.tv", Path: "/helix/streams"}
 	q := u.Query()
-	q.Set("first", "100")
+	q.Add("first", "100")
 	u.RawQuery = q.Encode()
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", u.String(), nil)
 	req.Header.Set("Client-Id", clientId)
-	req.Header.Set("Authorization", "Bearer "+oauthToken)
+	req.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return &top100Streams, err
+		log.Fatal("Error sending request: ", err)
 	}
 
 	defer resp.Body.Close()
@@ -98,46 +95,11 @@ func GetTop100Livestreams(oauthToken string) (*models.Top100StreamsResponse, err
 		log.Fatalf("Error unmarshaling response body: %v", err)
 	}
 
-	return &top100Streams, nil
-}
+	streamerNames := make([]string, 0, 100)
 
-func GetTrendingGames(accessToken string) ([]models.TwitchGame, error) {
-	clientId, _ := LoadTwitchKeys()
-	// Twitch API Endpoint for Get Top Games
-	url := "https://api.twitch.tv/helix/games/top"
-
-	// Create a new HTTP request
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
+	for _, stream := range top100Streams.Data {
+		streamerNames = append(streamerNames, stream.UserName)
 	}
 
-	// Set Twitch API Client ID (Get yours from the Twitch Developer Console)
-	req.Header.Set("Client-Id", clientId)
-
-	// Set Authorization Header if you have a Twitch App Access Token (Optional)
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-
-	// Send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// Check for API errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Twitch API Error: %s", resp.Status)
-	}
-
-	// Parse the JSON response
-	var response struct {
-		Data []models.TwitchGame `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, err
-	}
-
-	return response.Data, nil
+	return streamerNames
 }

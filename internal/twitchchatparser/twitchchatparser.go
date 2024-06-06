@@ -1,7 +1,6 @@
 package twitchchatparser
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -31,20 +30,8 @@ func CreateTwitchClient() *twitch.Client {
 
 // Used to get the initial top 100 streamers. Subsequent updates will be done in the UpdateStreamerList method
 func SubscribeToTwitchChat() {
-	oauthToken := twitchhelper.SendOauthRequest()
-
-	topLivestreams, err := twitchhelper.GetTop100Livestreams(oauthToken.AccessToken)
-	if err != nil {
-		log.Fatalf("Error getting livestreams: %v\n", err)
-	}
-
-	streamerNames := make([]string, 100)
-
-	for _, stream := range topLivestreams.Data {
-		streamerNames = append(streamerNames, stream.UserName)
-	}
-
-	go shared.TwitchClient.Join(streamerNames...)
+	topLivestreams := twitchhelper.GetTop100ChannelsByStreamViewCount()
+	go shared.TwitchClient.Join(topLivestreams...)
 }
 
 func ProcessTwitchMessages() {
@@ -68,6 +55,7 @@ func ProcessTwitchMessages() {
 
 				if shared.ProcessedMessageCount >= constants.TWITCH_RESET_STREAM_MESSAGE_COUNT {
 					go UpdateStreamerList(shared.TwitchClient)
+					shared.ProcessedMessageCount = 0
 				}
 
 				shared.KafkaMessageBatch = make([]kafka.Message, 0)
@@ -76,8 +64,51 @@ func ProcessTwitchMessages() {
 	}()
 }
 
+// We will go through each of the streams that we are currently watching and update the list of top 100 streams
+// to watch. This will be done every 50,000 messages that we process.
 func UpdateStreamerList(client *twitch.Client) {
-	fmt.Println("HEY GOING TO UPDATE!!!!")
+	shared.LastUpdatedTopStreamersMutex.Lock()
+	defer shared.LastUpdatedTopStreamersMutex.Unlock()
+
+	topChannelsByViewCount := twitchhelper.GetTop100ChannelsByStreamViewCount()
+
+	// Get the difference between the two lists
+	var streamsToJoin, streamsToLeave []string
+
+	// Use a map to store the current connected channels for faster lookup
+	connectedChannelsMap := make(map[string]bool)
+	topChannelsByViewCountMap := make(map[string]bool)
+	for _, channel := range shared.LastUpdatedTopStreamers {
+		connectedChannelsMap[channel] = true
+	}
+
+	for _, channel := range topChannelsByViewCount {
+		topChannelsByViewCountMap[channel] = true
+	}
+
+	// Find the channels to leave and join
+	for _, channel := range topChannelsByViewCount {
+		if _, found := connectedChannelsMap[channel]; !found {
+			streamsToJoin = append(streamsToJoin, channel)
+		}
+	}
+
+	for _, channel := range shared.LastUpdatedTopStreamers {
+		if _, found := topChannelsByViewCountMap[channel]; !found {
+			streamsToLeave = append(streamsToLeave, channel)
+		}
+	}
+
+	// Leave the channels that are no longer in the top 100
+	if len(streamsToJoin) > 0 {
+		shared.TwitchClient.Join(streamsToJoin...)
+	}
+
+	for _, channel := range streamsToLeave {
+		shared.TwitchClient.Depart(channel)
+	}
+
+	shared.LastUpdatedTopStreamers = topChannelsByViewCount
 }
 
 func ParseTwitchMessage(message twitch.PrivateMessage) *models.TwitchMessage {
