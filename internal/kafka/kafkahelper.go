@@ -1,17 +1,68 @@
 package kafkahelper
 
 import (
+	"context"
+	"log"
 	"net"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/joho/godotenv"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
+
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
-	log "github.com/sirupsen/logrus"
 )
+
+var (
+	producers       = make(map[string]*kafka.Writer)
+	producerConfigs = make(map[string]kafka.WriterConfig)
+	mutex           sync.Mutex
+)
+
+func InitKafkaProducer(topic string) error {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if _, ok := producers[topic]; ok {
+		return nil
+	}
+
+	producerConfig, err := getKafkaProducerConfig(topic)
+	if err != nil {
+		return err
+	}
+
+	producer := kafka.NewWriter(producerConfig)
+	producers[topic] = producer
+	producerConfigs[topic] = producerConfig
+
+	return nil
+}
+
+func WriteDataToKafka(topic string, messages []kafka.Message) {
+	InitKafkaProducer(topic)
+
+	producer := producers[topic]
+	err := producer.WriteMessages(context.Background(), messages...)
+
+	if err != nil {
+		log.Fatal("failed to write messages:", err)
+	}
+}
+
+func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
+	brokerAddresses := GetBrokerAddresses()
+
+	return kafka.WriterConfig{
+		Brokers:          brokerAddresses,
+		Topic:            topic,
+		Balancer:         &kafka.RoundRobin{},
+		CompressionCodec: kafka.Lz4.Codec(),
+	}, nil
+}
 
 func GetBrokerAddresses() []string {
 	// load .env file
@@ -29,7 +80,6 @@ func GetBrokerAddresses() []string {
 // Pulls all topics listed in the .env file and creates them in the associated
 // Kafka cluster if they do not exist.
 func ValidateBaseTopics() {
-
 	partitionCount, replicationCount := getPartitionAndReplicationCount()
 
 	conn := createKafkaConnection()

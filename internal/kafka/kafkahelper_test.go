@@ -1,4 +1,4 @@
-package kafkaproducer
+package kafkahelper
 
 import (
 	"testing"

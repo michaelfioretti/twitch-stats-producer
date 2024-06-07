@@ -7,7 +7,7 @@ import (
 
 	"github.com/gempir/go-twitch-irc/v2"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkaproducer"
+	kafkahelper "github.com/michaelfioretti/twitch-stats-producer/internal/kafka"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
@@ -52,7 +52,7 @@ func ProcessTwitchMessages() {
 			if len(shared.KafkaMessageBatch) == constants.KAFKA_MESSAGES_PER_BATCH {
 				log.Info("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
 
-				go kafkaproducer.WriteDataToKafka("streamer_chat", shared.KafkaMessageBatch)
+				go kafkahelper.WriteDataToKafka("streamer_chat", shared.KafkaMessageBatch)
 
 				shared.ProcessedMessageCount += constants.KAFKA_MESSAGES_PER_BATCH
 
