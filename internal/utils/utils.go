@@ -16,6 +16,7 @@ func GetEnvVar(key string) string {
 			// Handle error if unable to load environment variables
 			log.Fatal("Error loading .env file")
 		}
+
 		value = os.Getenv(key)
 	}
 	return value

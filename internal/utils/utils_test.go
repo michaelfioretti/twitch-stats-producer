@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestGetEnvVar(t *testing.T) {
-	key := "TEST_KEY"
-	value := "test_value"
+func TestGetEnvVar_ExistingKey(t *testing.T) {
+	key := "EXISTING_KEY"
+	value := "existing_value"
 	err := os.Setenv(key, value)
 	if err != nil {
 		t.Fatalf("Failed to set environment variable: %v", err)

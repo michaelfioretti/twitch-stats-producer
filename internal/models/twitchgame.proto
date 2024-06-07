@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package models;
+
+option go_package = "github.com/michaelfioretti/twitch-stats-producer/internal/models";
+
+message TwitchGame {
+    string id = 1;
+    string name = 2;
+    string box_art_url = 3;
+    int32 viewer_count = 4;
+    int32 popularity = 5;
+}

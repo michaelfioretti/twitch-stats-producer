@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package models;
+
+option go_package = "github.com/michaelfioretti/twitch-stats-producer/internal/models";
+
+message TwitchMessage {
+  string username = 1;
+  string channel = 2;
+  string message = 3;
+  repeated string badges = 4;
+  int32 bits = 5;
+  int32 mod = 6;
+  int32 subscribed = 7;
+  string color = 8;
+  string roomID = 9;
+}
+
+message Condition {
+  string broadcasterUserId = 1;
+  string moderatorUserId = 2;
+}
+
+message TwitchMessageRequest {
+  string type = 1;
+  string version = 2;
+  Condition condition = 3;
+}

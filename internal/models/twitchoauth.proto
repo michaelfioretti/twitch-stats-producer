@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package models;
+
+option go_package = "github.com/michaelfioretti/twitch-stats-producer/internal/models";
+
+message TwitchOauthResponse {
+  string access_token = 1;
+  int32 expires_in = 2;
+  string token_type = 3;
+}
