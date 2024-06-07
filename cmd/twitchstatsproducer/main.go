@@ -1,35 +1,37 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
-
-	"github.com/gempir/go-twitch-irc/v2"
-	"github.com/joho/godotenv"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatparser"
+	"os"
+	"strings"
 )
 
 func main() {
-	err := godotenv.Load()
-
+	fmt.Println("HELLOOOOOO HERE WE GO!")
+	secretPath := "/run/secrets/db_password"
+	secrets, err := os.ReadFile(secretPath)
 	if err != nil {
-		log.Fatal("Error loading .env file", err)
+		log.Fatalf("Failed to read secret: %v", err)
 	}
 
-	go kafkahelper.ValidateBaseTopics()
+	dbPasswordStr := string(secrets)
+	dbPasswordStr = strings.TrimSpace(dbPasswordStr)
 
-	shared.TwitchClient = twitchchatparser.CreateTwitchClient()
-	twitchchatparser.SubscribeToTwitchChat()
+	fmt.Println("FINALLY: ", dbPasswordStr)
 
-	shared.TwitchClient.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		twitchMessage := twitchchatparser.ParseTwitchMessage(message)
-		shared.MessageChannel <- twitchMessage
-	})
+	// go kafkahelper.ValidateBaseTopics()
 
-	go twitchchatparser.ProcessTwitchMessages()
-	go shared.TwitchClient.Connect()
+	// shared.TwitchClient = twitchchatparser.CreateTwitchClient()
+	// twitchchatparser.SubscribeToTwitchChat()
 
-	http.ListenAndServe(":8080", nil)
+	// shared.TwitchClient.OnPrivateMessage(func(message twitch.PrivateMessage) {
+	// 	twitchMessage := twitchchatparser.ParseTwitchMessage(message)
+	// 	shared.MessageChannel <- twitchMessage
+	// })
+
+	// go twitchchatparser.ProcessTwitchMessages()
+	// go shared.TwitchClient.Connect()
+
+	// http.ListenAndServe(":8080", nil)
 }

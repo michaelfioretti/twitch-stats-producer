@@ -25,6 +25,7 @@ dist/
 
 # Configuration variables
 .env
+secrets
 
 # VS Code
 .vscode

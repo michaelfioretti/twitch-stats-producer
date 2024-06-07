@@ -21,32 +21,26 @@ services:
       - 'kafka_data_1:/bitnami/kafka/data'
 
   twitch-chat-stats:
-    image: 'michaelfioretti/twitch-chat-stats:latest'
-    environment:
-      SECRET_PATH: /run/secrets/secrets
+    build: .
     secrets:
-      - KAFKA_BROKERS
-      - PARTITION_COUNT
-      - REPLICATION_COUNT
-      - TWITCH_CLIENT_ID
-      - TWITCH_CLIENT_SECRET
+      - kafka_brokers
+      - twitch_client_id
+      - twitch_client_secret
+    environment:
+      - KAFKA_BROKERS_FILE=/run/secrets/kafka_brokers
+      - TWITCH_CLIENT_ID_FILE=/run/secrets/twitch_client_id
+      - TWITCH_CLIENT_SECRET_FILE=/run/secrets/twitch_client_secret
     depends_on:
       - kafka
 
 secrets:
-  KAFKA_BROKERS:
-    file: ./secrets.txt
-  PARTITION_COUNT:
-    file: ./secrets.txt
-  REPLICATION_COUNT:
-    file: ./secrets.txt
-  TWITCH_CLIENT_ID:
-    file: ./secrets.txt
-  TWITCH_CLIENT_SECRET:
-    file: ./secrets.txt
+  kafka_brokers:
+    file: ./secrets/kafka_brokers.txt
+  twitch_client_id:
+    file: ./secrets/twitch_client_id.txt
+  twitch_client_secret:
+    file: ./secrets/twitch_client_secret.txt
 
 volumes:
   kafka_data_1:
-    driver: local
-  app_data:
     driver: local

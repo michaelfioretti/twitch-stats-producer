@@ -1,5 +1,9 @@
+init:
+	make clean
+	make proto
+
 dev:
-	go run cmd/twitchstatsproducer/main.go
+	docker compose -f docker-compose-dev.yml up --force-recreate
 
 test:
 	go test -v ./...

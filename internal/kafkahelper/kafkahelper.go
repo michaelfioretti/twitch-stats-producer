@@ -3,7 +3,6 @@ package kafkahelper
 import (
 	"context"
 	"errors"
-	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -80,41 +79,41 @@ func getBrokerAddresses() []string {
 
 // Pulls all topics listed in the .env file and creates them in the associated
 // Kafka cluster if they do not exist.
-func ValidateBaseTopics() {
-	partitionCount, replicationCount := getPartitionAndReplicationCount()
+// func ValidateBaseTopics() {
+// 	partitionCount, replicationCount := getPartitionAndReplicationCount()
 
-	conn := createKafkaConnection()
+// 	conn := createKafkaConnection()
 
-	defer conn.Close()
+// 	defer conn.Close()
 
-	controller, err := conn.Controller()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+// 	controller, err := conn.Controller()
+// 	if err != nil {
+// 		log.Fatal(err.Error())
+// 	}
 
-	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+// 	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+// 	if err != nil {
+// 		log.Fatal(err.Error())
+// 	}
 
-	defer controllerConn.Close()
+// 	defer controllerConn.Close()
 
-	// Loop and create topic configs
-	topics := getAvailableTopics()
-	topicConfigs := []kafka.TopicConfig{}
-	for i := range topics {
-		topicConfigs = append(topicConfigs, kafka.TopicConfig{
-			Topic:             topics[i],
-			NumPartitions:     partitionCount,
-			ReplicationFactor: replicationCount,
-		})
-	}
+// 	// Loop and create topic configs
+// 	topics := getAvailableTopics()
+// 	topicConfigs := []kafka.TopicConfig{}
+// 	for i := range topics {
+// 		topicConfigs = append(topicConfigs, kafka.TopicConfig{
+// 			Topic:             topics[i],
+// 			NumPartitions:     partitionCount,
+// 			ReplicationFactor: replicationCount,
+// 		})
+// 	}
 
-	err = controllerConn.CreateTopics(topicConfigs...)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-}
+// 	err = controllerConn.CreateTopics(topicConfigs...)
+// 	if err != nil {
+// 		log.Fatal(err.Error())
+// 	}
+// }
 
 func getAvailableTopics() []string {
 	topicsStr := constants.KAFKA_TOPICS
@@ -122,16 +121,16 @@ func getAvailableTopics() []string {
 	return availableTopics
 }
 
-func createKafkaConnection() *kafka.Conn {
-	brokerAddresses := getBrokerAddresses()
-	// Use first one for simplicity
-	conn, err := kafka.Dial("tcp", brokerAddresses[0])
-	if err != nil {
-		log.Fatalf("Error connecting to Kafka cluster: %v", err)
-	}
+// func createKafkaConnection() *kafka.Conn {
+// 	brokerAddresses := getBrokerAddresses()
+// 	// Use first one for simplicity
+// 	conn, err := kafka.Dial("tcp", brokerAddresses[0])
+// 	if err != nil {
+// 		log.Fatalf("Error connecting to Kafka cluster: %v", err)
+// 	}
 
-	return conn
-}
+// 	return conn
+// }
 
 func getPartitionAndReplicationCount() (int, int) {
 	partitionCountStr := os.Getenv("PARTITION_COUNT")
