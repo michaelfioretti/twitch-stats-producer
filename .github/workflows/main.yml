@@ -10,7 +10,7 @@ on:
 
 jobs:
   # Build and test the program
-  build-test-deploy:
+  deploy-to-docker:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 

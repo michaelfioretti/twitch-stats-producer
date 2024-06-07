@@ -9,7 +9,7 @@ on:
 
 jobs:
   # Build and test the program
-  build-test-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
