@@ -2,18 +2,18 @@ package kafkahelper
 
 import (
 	"context"
-	"log"
+	"errors"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/joho/godotenv"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -26,12 +26,18 @@ func InitKafkaProducer(topic string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
+	if topic == "" {
+		return errors.New("topic is empty or nil")
+	}
+
 	if _, ok := producers[topic]; ok {
+		log.Infof("Producer already exists for topic %s", topic)
 		return nil
 	}
 
 	producerConfig, err := getKafkaProducerConfig(topic)
 	if err != nil {
+		log.Fatal("failed to get producer config:", err)
 		return err
 	}
 
@@ -42,19 +48,22 @@ func InitKafkaProducer(topic string) error {
 	return nil
 }
 
-func WriteDataToKafka(topic string, messages []kafka.Message) {
+func WriteDataToKafka(topic string, messages []kafka.Message) error {
 	InitKafkaProducer(topic)
 
 	producer := producers[topic]
 	err := producer.WriteMessages(context.Background(), messages...)
 
 	if err != nil {
-		log.Fatal("failed to write messages:", err)
+		log.Errorf("failed to write messages: %v", err)
+		return err
 	}
+
+	return nil
 }
 
 func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
-	brokerAddresses := GetBrokerAddresses()
+	brokerAddresses := getBrokerAddresses()
 
 	return kafka.WriterConfig{
 		Brokers:          brokerAddresses,
@@ -64,14 +73,7 @@ func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
 	}, nil
 }
 
-func GetBrokerAddresses() []string {
-	// load .env file
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
+func getBrokerAddresses() []string {
 	brokerAddresses := os.Getenv("KAFKA_BROKERS")
 	addresses := strings.Split(brokerAddresses, ",")
 	return addresses
@@ -122,7 +124,7 @@ func getAvailableTopics() []string {
 }
 
 func createKafkaConnection() *kafka.Conn {
-	brokerAddresses := GetBrokerAddresses()
+	brokerAddresses := getBrokerAddresses()
 	// Use first one for simplicity
 	conn, err := kafka.Dial("tcp", brokerAddresses[0])
 	if err != nil {
