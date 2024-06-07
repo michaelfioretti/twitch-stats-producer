@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	log "github.com/sirupsen/logrus"
@@ -16,7 +16,7 @@ import (
 
 func SendOauthRequest() *models.TwitchOauthResponse {
 	var oauthResponse models.TwitchOauthResponse
-	clientId, clientSecret := LoadTwitchKeys()
+	clientId, clientSecret := loadTwitchKeys()
 	req, err := http.NewRequest("POST", constants.TWITCH_OAUTH_URL, nil)
 	if err != nil {
 		log.Fatal("Error creating request: ", err)
@@ -51,17 +51,11 @@ func SendOauthRequest() *models.TwitchOauthResponse {
 	return &oauthResponse
 }
 
-func LoadTwitchKeys() (string, string) {
-	clientId := os.Getenv("TWITCH_CLIENT_ID")
-	clientSecret := os.Getenv("TWITCH_CLIENT_SECRET")
-	return clientId, clientSecret
-}
-
 func GetTop100ChannelsByStreamViewCount() []string {
 	oauthToken := SendOauthRequest()
 
 	var top100Streams models.Top100StreamsResponse
-	clientId, _ := LoadTwitchKeys()
+	clientId, _ := loadTwitchKeys()
 
 	u := url.URL{Scheme: "https", Host: "api.twitch.tv", Path: "/helix/streams"}
 	q := u.Query()
@@ -103,4 +97,9 @@ func GetTop100ChannelsByStreamViewCount() []string {
 	log.Info("Total view count for top 100 streams: ", totalViewCount)
 
 	return streamerNames
+}
+
+func loadTwitchKeys() (string, string) {
+	secrets := utils.ReadSecrets()
+	return secrets["twitch_client_id"], secrets["twitch_client_secret"]
 }
