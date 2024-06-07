@@ -20,6 +20,13 @@ services:
     volumes:
       - 'kafka_data_1:/bitnami/kafka/data'
 
+  twitch-chat-stats:
+    image: 'michaelfioretti/twitch-chat-stats:latest'
+    env_file:
+      - .env
+    depends_on:
+      - kafka-1
+
 volumes:
   kafka_data_1:
     driver: local

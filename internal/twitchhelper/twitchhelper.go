@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	log "github.com/sirupsen/logrus"
@@ -52,8 +52,8 @@ func SendOauthRequest() *models.TwitchOauthResponse {
 }
 
 func LoadTwitchKeys() (string, string) {
-	clientId := utils.GetEnvVar("TWITCH_CLIENT_ID")
-	clientSecret := utils.GetEnvVar("TWITCH_CLIENT_SECRET")
+	clientId := os.Getenv("TWITCH_CLIENT_ID")
+	clientSecret := os.Getenv("TWITCH_CLIENT_SECRET")
 	return clientId, clientSecret
 }
 

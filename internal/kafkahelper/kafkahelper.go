@@ -11,7 +11,6 @@ import (
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
 	log "github.com/sirupsen/logrus"
 )
@@ -135,8 +134,8 @@ func createKafkaConnection() *kafka.Conn {
 }
 
 func getPartitionAndReplicationCount() (int, int) {
-	partitionCountStr := utils.GetEnvVar("PARTITION_COUNT")
-	replicationCountStr := utils.GetEnvVar("REPLICATION_COUNT")
+	partitionCountStr := os.Getenv("PARTITION_COUNT")
+	replicationCountStr := os.Getenv("REPLICATION_COUNT")
 
 	partitionCount, err := strconv.Atoi(partitionCountStr)
 	if err != nil {
