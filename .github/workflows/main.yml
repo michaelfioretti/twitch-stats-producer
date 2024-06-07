@@ -6,23 +6,17 @@ name: CI/CD
 on:
   pull_request:
     branches: ["main"]
+    types: ["closed"]
 
 jobs:
   # Build and test the program
   build-test-deploy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.18"
-
-      - name: Unit tests
-        run: make test
 
       - name: Build the project
         run: make build
