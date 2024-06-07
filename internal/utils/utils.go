@@ -12,7 +12,7 @@ var secretPaths map[string]string = map[string]string{
 	"TWITCH_CLIENT_SECRET": os.Getenv("TWITCH_CLIENT_SECRET_FILE"),
 }
 
-var secrets map[string]string
+var secrets map[string]string = map[string]string{}
 
 func ReadSecrets() map[string]string {
 	for secretName, secretPath := range secretPaths {

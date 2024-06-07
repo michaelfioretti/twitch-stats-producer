@@ -101,5 +101,5 @@ func GetTop100ChannelsByStreamViewCount() []string {
 
 func loadTwitchKeys() (string, string) {
 	secrets := utils.ReadSecrets()
-	return secrets["twitch_client_id"], secrets["twitch_client_secret"]
+	return secrets["TWITCH_CLIENT_ID"], secrets["TWITCH_CLIENT_SECRET"]
 }
