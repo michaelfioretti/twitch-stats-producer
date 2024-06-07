@@ -1,6 +1,12 @@
 dev:
 	go run cmd/twitchstatsproducer/main.go
 
+test
+	go test -v ./...
+
+coverage:
+	go test ./... -coverprofile=coverage.out
+
 proto:
 	make clean
 	echo "Generating proto files"

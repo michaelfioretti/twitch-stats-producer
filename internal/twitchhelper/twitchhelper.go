@@ -8,13 +8,10 @@ import (
 	"net/url"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
-	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
-	log "github.com/sirupsen/logrus"
-)
 
-const (
-	twitchWelcomeMessage = "session_welcome"
+	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
+	log "github.com/sirupsen/logrus"
 )
 
 func SendOauthRequest() *models.TwitchOauthResponse {
@@ -55,7 +52,6 @@ func SendOauthRequest() *models.TwitchOauthResponse {
 }
 
 func LoadTwitchKeys() (string, string) {
-	// Load Twitch keys from .env file
 	clientId := utils.GetEnvVar("TWITCH_CLIENT_ID")
 	clientSecret := utils.GetEnvVar("TWITCH_CLIENT_SECRET")
 	return clientId, clientSecret
