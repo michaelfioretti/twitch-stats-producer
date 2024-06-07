@@ -1,7 +1,7 @@
 dev:
 	go run cmd/twitchstatsproducer/main.go
 
-test
+test:
 	go test -v ./...
 
 coverage:
