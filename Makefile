@@ -4,8 +4,14 @@ dev:
 test:
 	go test -v ./...
 
+build:
+	go build -o dist/main cmd/twitchstatsproducer/main.go
+
 coverage:
 	go test ./... -coverprofile=coverage.out
+
+view-coverage:
+	go tool cover -html=coverage.out
 
 proto:
 	make clean
