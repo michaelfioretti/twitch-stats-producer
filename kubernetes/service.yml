@@ -1,5 +1,5 @@
 # Service file for twitch-chat-stats image
-apiVersion: v1
+apiVersion: apps/v1
 kind: Service
 metadata:
   name: twitch-chat-stats-service
