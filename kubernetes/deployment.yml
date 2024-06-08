@@ -32,3 +32,5 @@ spec:
             secretKeyRef:
               name: twitch-chat-stats-secrets
               key: twitch_client_secret
+      imagePullSecrets:
+          - name: regcred
