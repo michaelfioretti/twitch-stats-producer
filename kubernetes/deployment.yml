@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: twitch-chat-stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: twitch-chat-stats
+  template:
+    metadata:
+      labels:
+        app: twitch-chat-stats
+    spec:
+      containers:
+      - name: twitch-chat-stats
+        image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+        env:
+        - name: KAFKA_BROKERS
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secrets
+              key: kafka_brokers
+        - name: TWITCH_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secrets
+              key: twitch_client_id
+        - name: TWITCH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secrets
+              key: twitch_client_secret

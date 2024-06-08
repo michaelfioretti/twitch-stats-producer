@@ -6,14 +6,15 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
+	"github.com/segmentio/kafka-go"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	kafkahelper "github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
-	"github.com/segmentio/kafka-go"
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
 )
 
 func CreateTwitchClient() *twitch.Client {

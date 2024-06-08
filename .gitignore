@@ -25,6 +25,8 @@ dist/
 
 # Configuration variables
 .env
+secrets
+twitch-chat-stats-secrets.yml
 
 # VS Code
 .vscode

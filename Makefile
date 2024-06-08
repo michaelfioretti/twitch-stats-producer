@@ -1,5 +1,11 @@
+# Create proto files and network for kafka and twitch-chat-stats containers
+init:
+	make clean
+	make proto
+	make network
+
 dev:
-	go run cmd/twitchstatsproducer/main.go
+	docker compose -f docker-compose-dev.yml up --build
 
 test:
 	go test -v ./...
@@ -24,3 +30,22 @@ clean:
 	if [ -d internal/models/proto ]; then \
 		rm -rf internal/models/proto; \
 	fi
+
+
+# Helpers
+network:
+	docker network create kafka-network
+	docker network connect kafka-network kafka
+	docker network connect kafka-network twitch-chat-stats
+
+secrets:
+secrets:
+	if [ ! -d secrets ]; then \
+		mkdir secrets; \
+	fi
+	echo "twitch_client_id" > secrets/twitch_client_id.txt
+	echo "twitch_client_secret" > secrets/twitch_client_secret.txt
+	echo "twitch_oauth_token" > secrets/twitch_oauth_token.txt
+
+make k8-secrets:
+	kubeseal --controller-name=sealed-secrets-controller --controller-namespace=kube-system --format=yaml < twitch-chat-stats-secrets.yml > kubernetes/sealed-twitch-chat-stats-secrets.yml
