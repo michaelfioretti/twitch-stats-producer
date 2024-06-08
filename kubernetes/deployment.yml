@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: twitch-chat-stats
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: twitch-chat-stats
@@ -20,15 +19,17 @@ spec:
         - name: KAFKA_BROKERS
           valueFrom:
             secretKeyRef:
-              name: twitch-chat-stats-secrets
+              name: twitch-chat-stats-secret
               key: kafka_brokers
         - name: TWITCH_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: twitch-chat-stats-secrets
+              name: twitch-chat-stats-secret
               key: twitch_client_id
         - name: TWITCH_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: twitch-chat-stats-secrets
+              name: twitch-chat-stats-secret
               key: twitch_client_secret
+      imagePullSecrets:
+          - name: registrypullsecret
