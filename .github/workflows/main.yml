@@ -9,8 +9,7 @@ on:
     types: ["closed"]
 
 jobs:
-  # Build and test the program
-  deploy-to-docker:
+  build-and-deploy:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
@@ -37,6 +36,25 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME}}:latest
+
+      - name: Authenticate with DigitalOcean
+        run: doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Get kubeconfig
+        run: doctl kubernetes cluster kubeconfig save <your-cluster-name>
+
+      - name: Apply Sealed Secret
+        run: kubectl apply -f kubernetes/my-sealed-secret.yml
+
+      - name: Apply Kafka Deployment
+        run: |
+          kubectl apply -f kubernetes/kafka-deployment.yml
+          kubectl apply -f kubernetes/kafka-service.yml
+
+      - name: Apply Custom App Deployment
+        run: |
+          kubectl apply -f kubernetes/deployment.yml
+          kubectl apply -f kubernetes/service.yml
 
       - name: Log out from Docker Hub
         run: docker logout

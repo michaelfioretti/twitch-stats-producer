@@ -46,3 +46,6 @@ secrets:
 	echo "twitch_client_id" > secrets/twitch_client_id.txt
 	echo "twitch_client_secret" > secrets/twitch_client_secret.txt
 	echo "twitch_oauth_token" > secrets/twitch_oauth_token.txt
+
+make k8-secrets:
+	kubeseal --controller-name=sealed-secrets-controller --controller-namespace=kube-system --format=yaml < twitch-chat-stats-secrets.yml > kubernetes/sealed-twitch-chat-stats-secrets.yml
