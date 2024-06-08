@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: twitch-chat-stats
-        image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+        image: michaelfioretti/twitch-chat-stats:latest
+        imagePullPolicy: Always
         env:
         - name: KAFKA_BROKERS
           valueFrom:
