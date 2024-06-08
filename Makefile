@@ -4,11 +4,6 @@ init:
 	make proto
 	make network
 
-network:
-	docker network create kafka-network
-	docker network connect kafka-network kafka
-	docker network connect kafka-network twitch-chat-stats
-
 dev:
 	docker compose -f docker-compose-dev.yml up --build
 
@@ -35,3 +30,19 @@ clean:
 	if [ -d internal/models/proto ]; then \
 		rm -rf internal/models/proto; \
 	fi
+
+
+# Helpers
+network:
+	docker network create kafka-network
+	docker network connect kafka-network kafka
+	docker network connect kafka-network twitch-chat-stats
+
+secrets:
+secrets:
+	if [ ! -d secrets ]; then \
+		mkdir secrets; \
+	fi
+	echo "twitch_client_id" > secrets/twitch_client_id.txt
+	echo "twitch_client_secret" > secrets/twitch_client_secret.txt
+	echo "twitch_oauth_token" > secrets/twitch_oauth_token.txt
