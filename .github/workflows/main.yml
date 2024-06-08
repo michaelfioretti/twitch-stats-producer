@@ -37,6 +37,11 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME}}:latest
 
+      - name: Install doctl
+        run: |
+          curl -sL https://github.com/digitalocean/doctl/releases/download/v1.63.0/doctl-1.63.0-linux-amd64.tar.gz | tar -xzv
+          sudo mv doctl /usr/local/bin
+
       - name: Authenticate with DigitalOcean
         run: doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -46,12 +51,12 @@ jobs:
       - name: Apply Sealed Secret
         run: kubectl apply -f kubernetes/sealed-twitch-chat-stats-secrets.yml
 
-      - name: Apply Kafka Deployment
+      - name: Apply kafka deployment
         run: |
           kubectl apply -f kubernetes/kafka-deployment.yml
           kubectl apply -f kubernetes/kafka-service.yml
 
-      - name: Apply Custom App Deployment
+      - name: Apply twitch chat stats deployment
         run: |
           kubectl apply -f kubernetes/deployment.yml
           kubectl apply -f kubernetes/service.yml
