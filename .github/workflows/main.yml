@@ -41,10 +41,10 @@ jobs:
         run: doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Get kubeconfig
-        run: doctl kubernetes cluster kubeconfig save <your-cluster-name>
+        run: doctl kubernetes cluster kubeconfig save ${{ secrets.K8_CLUSTER_NAME }}
 
       - name: Apply Sealed Secret
-        run: kubectl apply -f kubernetes/my-sealed-secret.yml
+        run: kubectl apply -f kubernetes/sealed-twitch-chat-stats-secrets.yml
 
       - name: Apply Kafka Deployment
         run: |
