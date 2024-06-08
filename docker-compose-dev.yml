@@ -28,24 +28,10 @@ services:
     container_name: twitch-chat-stats
     networks:
       - kafka-network
-    secrets:
-      - kafka_brokers
-      - twitch_client_id
-      - twitch_client_secret
-    environment:
-      - KAFKA_BROKERS_FILE=/run/secrets/kafka_brokers
-      - TWITCH_CLIENT_ID_FILE=/run/secrets/twitch_client_id
-      - TWITCH_CLIENT_SECRET_FILE=/run/secrets/twitch_client_secret
+    env_file:
+      - .env
     depends_on:
       - kafka
-
-secrets:
-  kafka_brokers:
-    file: ./secrets/kafka_brokers.txt
-  twitch_client_id:
-    file: ./secrets/twitch_client_id.txt
-  twitch_client_secret:
-    file: ./secrets/twitch_client_secret.txt
 
 networks:
   kafka-network:

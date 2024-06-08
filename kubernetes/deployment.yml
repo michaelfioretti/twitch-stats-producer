@@ -15,21 +15,19 @@ spec:
       containers:
       - name: twitch-chat-stats
         image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
-        ports:
-        - containerPort: 80
         env:
-        - name: kafka_brokers
+        - name: KAFKA_BROKERS
           valueFrom:
             secretKeyRef:
-              name: twitch-chat-secrets
+              name: twitch-chat-stats-secrets
               key: kafka_brokers
-        - name: twitch_client_id
+        - name: TWITCH_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: twitch-chat-secrets
+              name: twitch-chat-stats-secrets
               key: twitch_client_id
-        - name: twitch_client_secret
+        - name: TWITCH_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: twitch-chat-secrets
+              name: twitch-chat-stats-secrets
               key: twitch_client_secret

@@ -3,10 +3,10 @@ package kafkahelper
 import (
 	"context"
 	"errors"
+	"os"
 	"strings"
 	"sync"
 
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 	"github.com/segmentio/kafka-go"
 	log "github.com/sirupsen/logrus"
 )
@@ -66,8 +66,7 @@ func getKafkaProducerConfig(topic string) (kafka.WriterConfig, error) {
 }
 
 func getBrokerAddresses() []string {
-	secrets := utils.ReadSecrets()
-	brokerAddressesStr := secrets["KAFKA_BROKERS"]
+	brokerAddressesStr := os.Getenv("KAFKA_BROKERS")
 	addresses := strings.Split(brokerAddressesStr, ",")
 	return addresses
 }

@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
-	"github.com/michaelfioretti/twitch-stats-producer/internal/utils"
 
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	log "github.com/sirupsen/logrus"
@@ -95,6 +95,5 @@ func GetTop100ChannelsByStreamViewCount() []string {
 }
 
 func loadTwitchKeys() (string, string) {
-	secrets := utils.ReadSecrets()
-	return secrets["TWITCH_CLIENT_ID"], secrets["TWITCH_CLIENT_SECRET"]
+	return os.Getenv("TWITCH_CLIENT_ID"), os.Getenv("TWITCH_CLIENT_SECRET")
 }
