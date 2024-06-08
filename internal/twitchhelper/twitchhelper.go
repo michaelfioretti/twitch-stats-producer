@@ -86,15 +86,10 @@ func GetTop100ChannelsByStreamViewCount() []string {
 	}
 
 	streamerNames := make([]string, 0, 100)
-	totalViewCount := int32(0)
 
 	for _, stream := range top100Streams.Data {
-		totalViewCount = totalViewCount + stream.ViewerCount
 		streamerNames = append(streamerNames, stream.UserName)
-		log.Info("Streamer name: ", stream.UserName, " - View count: ", stream.ViewerCount)
 	}
-
-	log.Info("Total view count for top 100 streams: ", totalViewCount)
 
 	return streamerNames
 }

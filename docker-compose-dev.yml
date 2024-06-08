@@ -1,11 +1,13 @@
+version: '3.8'
 services:
   kafka:
     image: 'bitnami/kafka:latest'
+    container_name: kafka
     environment:
       - KAFKA_ENABLE_KRAFT=true
       - KAFKA_CFG_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
@@ -17,11 +19,16 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     ports:
       - '9092:9092'
+    networks:
+      - kafka-network
     volumes:
       - 'kafka_data_1:/bitnami/kafka/data'
 
   twitch-chat-stats:
     build: .
+    container_name: twitch-chat-stats
+    networks:
+      - kafka-network
     secrets:
       - kafka_brokers
       - twitch_client_id
@@ -40,6 +47,10 @@ secrets:
     file: ./secrets/twitch_client_id.txt
   twitch_client_secret:
     file: ./secrets/twitch_client_secret.txt
+
+networks:
+  kafka-network:
+    driver: bridge
 
 volumes:
   kafka_data_1:
