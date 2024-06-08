@@ -1,13 +1,13 @@
 # Twitch Stats Producer
 
-A dockerized Go server that listens to Twitch streams via IRC and pushes messages into a Kafka cluster.
+A Dockerized Go server that produces Twitch chat statistics to a Kafka cluser via IRC.
 
-# Cloning and Testing
+# Cloning and Running
 
 To clone the repository:
 
 ```bash
 git clone https://github.com/michaelfioretti/twitch-stats-producer.git
 cd twitch-stats-producer
-go test -v ./...
+make init && make dev
 ```

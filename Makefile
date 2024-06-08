@@ -1,9 +1,16 @@
+# Create proto files and network for kafka and twitch-chat-stats containers
 init:
 	make clean
 	make proto
+	make network
+
+network:
+	docker network create kafka-network
+	docker network connect kafka-network kafka
+	docker network connect kafka-network twitch-chat-stats
 
 dev:
-	docker compose -f docker-compose-dev.yml up --force-recreate
+	docker compose -f docker-compose-dev.yml up --build
 
 test:
 	go test -v ./...
