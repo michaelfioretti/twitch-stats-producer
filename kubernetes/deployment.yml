@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitch-chat-stats
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: twitch-chat-stats
+  template:
+    metadata:
+      labels:
+        app: twitch-chat-stats
+    spec:
+      containers:
+      - name: twitch-chat-stats
+        image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+        ports:
+        - containerPort: 80
