@@ -27,7 +27,7 @@ spec:
         - name: KAFKA_LISTENERS
           value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094"
         - name: KAFKA_ADVERTISED_LISTENERS
-          value: "PLAINTEXT://kafka:9092,EXTERNAL://165.227.109.90:9094"
+          value: "PLAINTEXT://kafka:9092,EXTERNAL://165.227.109.90:30094"
         - name: KAFKA_CONTROLLER_QUORUM_VOTERS
           value: "1@kafka:9093"
         - name: KAFKA_NODE_ID
