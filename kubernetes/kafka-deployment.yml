@@ -11,6 +11,13 @@ spec:
       labels:
         app: kafka
     spec:
+      initContainers:
+      - name: init-permissions
+        image: busybox
+        command: ["sh", "-c", "chmod -R 777 /mnt/data && chown -R 1001:1001 /mnt/data && rm -rf /mnt/data/lost+found"]
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /mnt/data
       containers:
       - name: kafka
         image: bitnami/kafka:latest
@@ -37,13 +44,18 @@ spec:
         - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
           value: "CONTROLLER"
         - name: KAFKA_LOG_DIRS
-          value: "/bitnami/kafka/data"
+          value: "/mnt/data"
         - name: KAFKA_METRIC_REPORTERS
           value: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
         - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE
           value: "false"
         - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
           value: "true"
+        - name: KAFKA_KRAFT_CLUSTER_ID
+          value: "twitch-chat-stats-cluster-id"
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /mnt/data
       volumes:
       - name: kafka-data
         persistentVolumeClaim:
