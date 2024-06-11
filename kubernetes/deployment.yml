@@ -32,4 +32,4 @@ spec:
               name: twitch-chat-stats-secret
               key: twitch_client_secret
       imagePullSecrets:
-          - name: registrypullsecret
+      - name: registrypullsecret
