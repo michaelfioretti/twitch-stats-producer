@@ -18,27 +18,6 @@ spec:
         volumeMounts:
         - name: kafka-data
           mountPath: /mnt/data
-      - name: setup-kafka-users
-        image: bitnami/kafka:latest
-        command: ["/bin/bash", "-c"]
-        args:
-        - |
-          echo "org.apache.kafka.common.security.plain.PlainLoginModule required \
-          username=\"${KAFKA_USERNAME}\" \
-          password=\"${KAFKA_PASSWORD}\" \
-          export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/jaas.conf"
-          kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=${KAFKA_PASSWORD}]' --entity-type users --entity-name ${KAFKA_USERNAME}
-        env:
-        - name: KAFKA_USER
-          valueFrom:
-            secretKeyRef:
-              name: twitch-chat-stats-secret
-              key: kafka-username
-        - name: KAFKA_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: twitch-chat-stats-secret
-              key: kafka-password
       containers:
       - name: kafka
         image: bitnami/kafka:latest
@@ -46,6 +25,9 @@ spec:
         - containerPort: 9092
         - containerPort: 9094
         env:
+        # Load JAAS
+        - name: KAFKA_OPTS
+          value: "-Djava.security.auth.login.config=/etc/kafka/jaas.conf"
         # Basic info
         - name: KAFKA_NODE_ID
           value: "1"
@@ -65,30 +47,30 @@ spec:
           value: "1"
         # Internal/external listeners
         - name: KAFKA_LISTENERS
-          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,SASL_PLAINTEXT://0.0.0.0:30094"
+          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,SASL_PLAINTEXT://0.0.0.0:9094"
         - name: KAFKA_ADVERTISED_LISTENERS
-          value: "PLAINTEXT://kafka:9092,SASL_PLAINTEXT://165.227.109.90:30094"
+          value: "PLAINTEXT://kafka:9092,SASL_PLAINTEXT://165.227.109.90:9094"
         - name: KAFKA_CONTROLLER_QUORUM_VOTERS
           value: "1@kafka:9093"
         # Security definitions and authentication
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: "PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT"
+          value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT"
         - name: KAFKA_SECURITY_INTER_BROKER_PROTOCOL
           value: "PLAINTEXT"
         - name: KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL
           value: "PLAIN"
         - name: KAFKA_SASL_ENABLED_MECHANISMS
           value: "PLAIN"
-        # Secret config
-        - name: KAFKA_SASL_JAAS_CONFIG
-        valueFrom:
-          secretKeyRef:
-            name: kafka-jaas-config
-            key: jaas-config
         volumeMounts:
         - name: kafka-data
           mountPath: /mnt/data
+        - name: jaas-config
+          mountPath: /etc/kafka/jaas.conf
+          subPath: jaas.conf
       volumes:
       - name: kafka-data
         persistentVolumeClaim:
           claimName: kafka-pvc
+      - name: jaas-config
+        secret:
+          secretName: kafka-jaas-config

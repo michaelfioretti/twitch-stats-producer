@@ -9,6 +9,7 @@ spec:
   ports:
   - port: 9094
     targetPort: 9094
+    nodePort: 30094
     protocol: TCP
     name: kafka-external
   selector:

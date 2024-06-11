@@ -1,0 +1,15 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: kafka-jaas-config
+  namespace: default
+spec:
+  encryptedData:
+    jaas.conf: AgCHu+wf8c0cV5pgfiiLRkLaeFHu56aSjE32rAfIfz3JYwv9DKPczyxcLdir7Aq3+Un6A+/6uA9pb3ieUPI6bKMIYFTtBfZVzZpSDt3q4gjefRpw9r9apzqgUQyoggz4YlcHVheIM5J/ZIYNlYqIBWPc8rrL3P+YqQRJ7vGirSwn+tY8JGLzC4H+3LfDXiNJSbi74pwUDv4Dke/I/gJnuMZHP79rFZ/MzVxH8IFnfdwnupHtrCqcRePniYCbnMMVH90ynKjZHc4VpPLNuqlQ0ULPb7RegwDbqa9oDQoo8YFUZEkB68Hlrh9yWmlQ7zBFYymfVBs4mC+V9Gtu2X3/x7Qkjb5YqpojNIhn8LwtvrI9vmNqSyytNjWR6D8SYagEEdxlhL/NNM5tHsKbb4FOmWSgioPvUQa/oxgRhgpe5g/ucOvRB7B9/ddzOqhwtOpaIztauzBvuN5QWIOcMJvVsWjmKEpGxXuxDmiTCOqnwr2qmDOh0oOu19UOmkgc6G81uRF5xN/O5BKAFf9TaYs8VXx4Vqwcw5d31TgZ30nZeteFBuzGTqJOJTsOpoZcWg7qVOLB2DoFEye1+7StAfOF3NbmD9uj9pN0FI8tdKPdmzlCJTxJqhQzPq+FkGVeVC+KhDf3h6qdqdV7raJG6+pWeUH49vIho7tBexJD5Nnc+4NcHCz8sMKI9Fy61ul3wwOfK1/kjLQLI9J4AxcCbLObRiDOGdZUci3gXEx6s39yGmBULi+pWfJiDwyci7LXIHGHhuLa5p6ms1SeljmLIWbAZB5Yjtw+fWsQbROjDzcGJ5a1LT+UDZA4/OrSwTCHshgK9vYiIWOnm5g5Acxyx0IUxFQLQRpFZ1A2VDKdY/+hIhvXvsg5gcWePlE5d44iNZlNq9lqZsu5noOWx7I2lj/1pYUCEugyiAjFLTp4c0g07A==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: kafka-jaas-config
+      namespace: default

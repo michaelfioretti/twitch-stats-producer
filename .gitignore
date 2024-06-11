@@ -27,6 +27,7 @@ dist/
 .env
 secrets
 twitch-chat-stats-secrets.yml
+kafka-jaas-config.yml
 
 # VS Code
 .vscode
