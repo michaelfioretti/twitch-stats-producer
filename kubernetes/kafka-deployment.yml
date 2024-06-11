@@ -18,6 +18,27 @@ spec:
         volumeMounts:
         - name: kafka-data
           mountPath: /mnt/data
+      - name: setup-kafka-users
+        image: bitnami/kafka:latest
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "org.apache.kafka.common.security.plain.PlainLoginModule required \
+          username=\"${KAFKA_USERNAME}\" \
+          password=\"${KAFKA_PASSWORD}\" \
+          export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/jaas.conf"
+          kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=${KAFKA_PASSWORD}]' --entity-type users --entity-name ${KAFKA_USERNAME}
+        env:
+        - name: KAFKA_USER
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secret
+              key: kafka-username
+        - name: KAFKA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secret
+              key: kafka-password
       containers:
       - name: kafka
         image: bitnami/kafka:latest
@@ -25,18 +46,7 @@ spec:
         - containerPort: 9092
         - containerPort: 9094
         env:
-        - name: KAFKA_ENABLE_KRAFT
-          value: "true"
-        - name: KAFKA_CFG_BROKER_ID
-          value: "1"
-        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
-        - name: KAFKA_LISTENERS
-          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094"
-        - name: KAFKA_ADVERTISED_LISTENERS
-          value: "PLAINTEXT://kafka:9092,EXTERNAL://165.227.109.90:30094"
-        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-          value: "1@kafka:9093"
+        # Basic info
         - name: KAFKA_NODE_ID
           value: "1"
         - name: KAFKA_PROCESS_ROLES
@@ -45,14 +55,36 @@ spec:
           value: "CONTROLLER"
         - name: KAFKA_LOG_DIRS
           value: "/mnt/data"
-        - name: KAFKA_METRIC_REPORTERS
-          value: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
-        - name: KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE
-          value: "false"
         - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
           value: "true"
         - name: KAFKA_KRAFT_CLUSTER_ID
           value: "twitch-chat-stats-cluster-id"
+        - name: KAFKA_ENABLE_KRAFT
+          value: "true"
+        - name: KAFKA_CFG_BROKER_ID
+          value: "1"
+        # Internal/external listeners
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,SASL_PLAINTEXT://0.0.0.0:30094"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092,SASL_PLAINTEXT://165.227.109.90:30094"
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: "1@kafka:9093"
+        # Security definitions and authentication
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT"
+        - name: KAFKA_SECURITY_INTER_BROKER_PROTOCOL
+          value: "PLAINTEXT"
+        - name: KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL
+          value: "PLAIN"
+        - name: KAFKA_SASL_ENABLED_MECHANISMS
+          value: "PLAIN"
+        # Secret config
+        - name: KAFKA_SASL_JAAS_CONFIG
+        valueFrom:
+          secretKeyRef:
+            name: kafka-jaas-config
+            key: jaas-config
         volumeMounts:
         - name: kafka-data
           mountPath: /mnt/data

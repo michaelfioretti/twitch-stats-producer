@@ -48,13 +48,26 @@ jobs:
     - name: Get kubeconfig
       run: doctl kubernetes cluster kubeconfig save ${{ secrets.K8_CLUSTER_NAME }}
 
-    - name: Apply Sealed Secret
+    - name: Create JAAS config
+      run: |
+        cat <<EOF > jaas-config
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="${{ secrets.KAFKA_USER }}"
+        password="${{ secrets.KAFKA_PASSWORD }}"
+        EOF
+      shell: bash
+
+    - name: Create/Update Kubernetes Secret
+      run: |
+        kubectl delete secret kafka-jaas-config --ignore-not-found
+        kubectl create secret generic kafka-jaas-config --from-file=jaas-config=jaas-config
+
+    - name: Apply Sealed Secret for Producer
       run: kubectl apply -f kubernetes/sealed-twitch-chat-stats-secrets.yml
 
     - name: Apply kafka deployment
       run: |
         kubectl apply -f kubernetes/persistentVolume.yml
-        kubectl apply -f kubernetes/persistentVolumeClaim.yml
         kubectl apply -f kubernetes/kafka-deployment.yml
         kubectl apply -f kubernetes/kafka-service.yml
 
