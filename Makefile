@@ -48,5 +48,5 @@ secrets:
 	echo "twitch_oauth_token" > secrets/twitch_oauth_token.txt
 
 make k8-secrets:
-	kubeseal --controller-name=sealed-secrets-controller --controller-namespace=kube-system --format=yaml < twitch-chat-stats-secrets.yml > kubernetes/sealed-twitch-chat-stats-secrets.yml
-	kubeseal --controller-name=sealed-secrets-controller --controller-namespace=kube-system --format=yaml < kafka-jaas-config.yml > kubernetes/sealed-kafka-jaas-config.yml
+	kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format=yaml < twitch-chat-stats-secrets.yml > kubernetes/sealed-twitch-chat-stats-secrets.yml
+	kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format=yaml < kafka-jaas-config.yml > kubernetes/sealed-kafka-jaas-config.yml

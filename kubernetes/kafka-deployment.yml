@@ -1,38 +1,8 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: kafka-pv
-  namespace: kafka-deployment
-spec:
-  capacity:
-    storage: 20Gi
-  accessModes:
-  - ReadWriteOnce
-  hostPath:
-    path: /mnt/data/kafka
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: kafka-pvc
-  namespace: kafka-deployment
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 20Gi
----
-
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: kafka
-  namespace: kafka-deployment
 spec:
-  serviceName: "kafka"
-  replicas: 1
   selector:
     matchLabels:
       app: kafka
@@ -42,47 +12,79 @@ spec:
         app: kafka
     spec:
       initContainers:
-      - name: chmod-data-directory
+      - name: init-permissions
         image: busybox
-        command: ["sh", "-c", "chmod -R 777 /var/lib/kafka/data && rm -rf /var/lib/kafka/data/lost+found"]
+        command: ["sh", "-c", "chmod -R 777 /mnt/data && chown -R 1001:1001 /mnt/data && rm -rf /mnt/data/lost+found"]
         volumeMounts:
         - name: kafka-storage
-          mountPath: /var/lib/kafka/data
+          mountPath: /mnt/data
+      - name: setup-kafka-users
+        image: bitnami/kafka:latest
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "org.apache.kafka.common.security.plain.PlainLoginModule required \
+          username=\"${KAFKA_USERNAME}\" \
+          password=\"${KAFKA_PASSWORD}\" \
+          export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/jaas.conf"
+          kafka-configs --zookeeper zookeeper:2181 --alter --add-config 'SCRAM-SHA-256=[password=${KAFKA_PASSWORD}]' --entity-type users --entity-name ${KAFKA_USERNAME}
+        env:
+        - name: KAFKA_USER
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secret
+              key: kafka-username
+        - name: KAFKA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: twitch-chat-stats-secret
+              key: kafka-password
       containers:
       - name: kafka
         image: bitnami/kafka:latest
+        ports:
+        - containerPort: 9092
+        - containerPort: 9094
         env:
-        - name: KAFKA_CFG_LISTENERS
-          value: "INTERNAL://:9092,CONTROLLER://:9093,SASL_PLAINTEXT://:9094"
-        - name: KAFKA_CFG_ADVERTISED_LISTENERS
-          value: "INTERNAL://localhost:9092,SASL_PLAINTEXT://134.209.0.242:30094"
-        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
-          value: "INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT"
-        - name: KAFKA_CFG_SASL_ENABLED_MECHANISMS
-          value: "PLAIN"
-        - name: KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL
-          value: "PLAIN"
-        - name: KAFKA_CFG_NODE_ID
+        # Basic info
+        - name: KAFKA_NODE_ID
           value: "1"
-        - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
-          value: "INTERNAL"
-        - name: KAFKA_CFG_PROCESS_ROLES
+        - name: KAFKA_PROCESS_ROLES
           value: "broker,controller"
         - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
           value: "CONTROLLER"
-        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
-          value: "1@kafka:9093"
-        - name: ALLOW_PLAINTEXT_LISTENER
-          value: "yes"
+        - name: KAFKA_LOG_DIRS
+          value: "/mnt/data"
+        - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+          value: "true"
         - name: KAFKA_KRAFT_CLUSTER_ID
-          value: "kafka-deployment-id"
-        - name: KAFKA_CFG_LOG_DIRS
-          value: "/var/lib/kafka/data"
-        ports:
-        - containerPort: 9094
-          name: kafka
-        - containerPort: 9093
-          name: controller
+          value: "twitch-chat-stats-cluster-id"
+        - name: KAFKA_ENABLE_KRAFT
+          value: "true"
+        - name: KAFKA_CFG_BROKER_ID
+          value: "1"
+        # Internal/external listeners
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,SASL_PLAINTEXT://0.0.0.0:30094"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092,SASL_PLAINTEXT://165.227.109.90:30094"
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: "1@kafka:9093"
+        # Security definitions and authentication
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT"
+        - name: KAFKA_SECURITY_INTER_BROKER_PROTOCOL
+          value: "PLAINTEXT"
+        - name: KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL
+          value: "PLAIN"
+        - name: KAFKA_SASL_ENABLED_MECHANISMS
+          value: "PLAIN"
+        # Secret config
+        - name: KAFKA_SASL_JAAS_CONFIG
+          valueFrom:
+            secretKeyRef:
+              name: kafka-jaas-config
+              key: jaas-config
         volumeMounts:
         - name: kafka-storage
           mountPath: /var/lib/kafka/data
@@ -90,18 +92,3 @@ spec:
       - name: kafka-storage
         persistentVolumeClaim:
           claimName: kafka-pvc
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: kafka
-  namespace: kafka-deployment
-spec:
-  type: NodePort
-  ports:
-  - port: 9094
-    targetPort: 9094
-    nodePort: 30094
-  selector:
-    app: kafka
