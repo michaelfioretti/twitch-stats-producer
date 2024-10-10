@@ -11,8 +11,8 @@ func TestKafkaTopics(t *testing.T) {
 
 func TestKafkaMessagesPerBatch(t *testing.T) {
 	expected := 100
-	if KAFKA_MESSAGES_PER_BATCH != expected {
-		t.Errorf("Expected KAFKA_MESSAES_PER_BATCH to be %d, but got %d", expected, KAFKA_MESSAGES_PER_BATCH)
+	if MESSAGES_PER_BATCH != expected {
+		t.Errorf("Expected KAFKA_MESSAES_PER_BATCH to be %d, but got %d", expected, MESSAGES_PER_BATCH)
 	}
 }
 

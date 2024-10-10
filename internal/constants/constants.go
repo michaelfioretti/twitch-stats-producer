@@ -2,7 +2,7 @@ package constants
 
 const (
 	KAFKA_TOPICS                       = "streamer_chat"
-	KAFKA_MESSAGES_PER_BATCH           = 100
+	MESSAGES_PER_BATCH                 = 100
 	PARTITION_COUNT                    = 1
 	REPLICATION_COUNT                  = 1
 	TWITCH_OAUTH_URL                   = "https://id.twitch.tv/oauth2/token"

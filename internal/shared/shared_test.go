@@ -17,9 +17,9 @@ func TestShared(t *testing.T) {
 		assert.IsType(t, make(chan *models.TwitchMessage, constants.TWITCH_MESSAGE_CHANNEL_BUFFER_SIZE), MessageChannel)
 	})
 
-	t.Run("TestKafkaMessageBatch", func(t *testing.T) {
-		assert.NotNil(t, KafkaMessageBatch)
-		assert.IsType(t, []kafka.Message{}, KafkaMessageBatch)
+	t.Run("TestTwitchMessageBatch", func(t *testing.T) {
+		assert.NotNil(t, TwitchMessageBatch)
+		assert.IsType(t, []kafka.Message{}, TwitchMessageBatch)
 	})
 
 	t.Run("TestProcessedMessageCount", func(t *testing.T) {
