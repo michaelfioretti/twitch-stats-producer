@@ -3,11 +3,8 @@ package twitchchatparser
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
@@ -30,40 +27,6 @@ func CreateTwitchClient() *twitch.Client {
 func SubscribeToTwitchChat() {
 	topLivestreams := twitchhelper.GetTop100ChannelsByStreamViewCount()
 	go shared.TwitchClient.Join(topLivestreams...)
-}
-
-func ProcessTwitchMessages() {
-	go func() {
-		for msg := range shared.MessageChannel {
-			protoTwitchMessage, err := proto.Marshal(msg)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Error("Error marshaling message")
-
-				continue
-			}
-
-			log.Info(protoTwitchMessage)
-
-			shared.TwitchMessageBatch = append(shared.TwitchMessageBatch, protoTwitchMessage)
-
-			if len(shared.TwitchMessageBatch) >= constants.MESSAGES_PER_BATCH {
-				log.Info("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
-
-				// go kafkahelper.WriteDataToKafka("streamer_chat", shared.TwitchMessageBatch)
-
-				shared.ProcessedMessageCount += constants.MESSAGES_PER_BATCH
-
-				if shared.ProcessedMessageCount >= constants.TWITCH_RESET_STREAM_MESSAGE_COUNT {
-					go UpdateStreamerList(shared.TwitchClient)
-					shared.ProcessedMessageCount = 0
-				}
-
-				shared.TwitchMessageBatch = make([][]byte, 0)
-			}
-		}
-	}()
 }
 
 // We will go through each of the streams that we are currently watching and update the list of top 100 streams

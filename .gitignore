@@ -31,3 +31,6 @@ kafka-jaas-config.yml
 
 # VS Code
 .vscode
+
+# Firebase
+twitch-chat-stats-firebase-adminsdk-zm2i4-23ecdda6eb.json
