@@ -48,8 +48,11 @@ jobs:
     - name: Get kubeconfig
       run: doctl kubernetes cluster kubeconfig save ${{ secrets.K8_CLUSTER_NAME }}
 
-    - name: Apply Sealed Secret for Kafka and Twitch Chat Stats configuration
+    - name: Twitch Chat Stat secrets
       run: kubectl apply -f kubernetes/sealed-twitch-chat-stats-secrets.yml
+
+    - name: Kafka JAAS
+      run: kubectl apply -f kubernetes/sealed-kafka-jaas-config.yml
 
     - name: Apply kafka deployment
       run: |
