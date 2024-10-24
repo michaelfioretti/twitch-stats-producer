@@ -1,6 +1,6 @@
 # Twitch Stats Producer
 
-A Dockerized Go server that produces Twitch chat statistics to a Kafka cluser via IRC.
+A dockerized Go server that listens to the top XXX livestreams on Twitch and broadcasts their chatrooms's chats via IRC. Note that this is still a major work in progress, and not suitable for any sort of production environment.
 
 # Cloning and Running
 
