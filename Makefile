@@ -1,7 +1,6 @@
 init:
 	make clean
 	make proto
-	make network
 
 dev:
 	docker compose -f docker-compose-dev.yml up --build
@@ -30,13 +29,6 @@ clean:
 		rm -rf internal/models/proto; \
 	fi
 
-
-# Helpers
-network:
-	docker network create twitch-chat-stats
-	docker network connect twitch-chat-stats
-
-secrets:
 secrets:
 	if [ ! -d secrets ]; then \
 		mkdir secrets; \
@@ -44,7 +36,3 @@ secrets:
 	echo "twitch_client_id" > secrets/twitch_client_id.txt
 	echo "twitch_client_secret" > secrets/twitch_client_secret.txt
 	echo "twitch_oauth_token" > secrets/twitch_oauth_token.txt
-
-make k8-secrets:
-	kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format=yaml < twitch-chat-stats-secrets.yml > kubernetes/sealed-twitch-chat-stats-secrets.yml
-	kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format=yaml < kafka-jaas-config.yml > kubernetes/sealed-kafka-jaas-config.yml

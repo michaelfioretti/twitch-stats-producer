@@ -1,6 +1,6 @@
 module github.com/michaelfioretti/twitch-stats-producer
 
-go 1.17
+go 1.24.0
 
 require (
 	github.com/gempir/go-twitch-irc/v2 v2.8.1
