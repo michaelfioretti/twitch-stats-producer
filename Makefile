@@ -1,4 +1,3 @@
-# Create proto files and network for kafka and twitch-chat-stats containers
 init:
 	make clean
 	make proto
@@ -34,9 +33,8 @@ clean:
 
 # Helpers
 network:
-	docker network create kafka-network
-	docker network connect kafka-network kafka
-	docker network connect kafka-network twitch-chat-stats
+	docker network create twitch-chat-stats
+	docker network connect twitch-chat-stats
 
 secrets:
 secrets:

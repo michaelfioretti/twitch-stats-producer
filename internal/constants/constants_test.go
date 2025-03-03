@@ -1,20 +1,9 @@
 package constants
 
-import "testing"
-
-func TestKafkaTopics(t *testing.T) {
-	expected := "streamer_chat"
-	if KAFKA_TOPICS != expected {
-		t.Errorf("Expected KAFKA_TOPICS to be %s, but got %s", expected, KAFKA_TOPICS)
-	}
-}
-
-func TestKafkaMessagesPerBatch(t *testing.T) {
-	expected := 100
-	if MESSAGES_PER_BATCH != expected {
-		t.Errorf("Expected KAFKA_MESSAES_PER_BATCH to be %d, but got %d", expected, MESSAGES_PER_BATCH)
-	}
-}
+import (
+	"testing"
+	"time"
+)
 
 func TestTwitchOauthUrl(t *testing.T) {
 	expected := "https://id.twitch.tv/oauth2/token"
@@ -51,15 +40,16 @@ func TestTwitchTagsRequestCmd(t *testing.T) {
 	}
 }
 
-func TestTwitchMessageChannelBufferSize(t *testing.T) {
-	expected := 1000
-	if TWITCH_MESSAGE_CHANNEL_BUFFER_SIZE != expected {
-		t.Errorf("Expected TWITCH_MESSAGE_CHANNEL_BUFFER_SIZE to be %d, but got %d", expected, TWITCH_MESSAGE_CHANNEL_BUFFER_SIZE)
-	}
-}
 func TestTwitchResetStreamMessageCount(t *testing.T) {
 	expected := 50000
 	if TWITCH_RESET_STREAM_MESSAGE_COUNT != expected {
 		t.Errorf("Expected TWITCH_RESET_STREAM_MESSAGE_COUNT to be %d, but got %d", expected, TWITCH_RESET_STREAM_MESSAGE_COUNT)
+	}
+}
+
+func TestFlushInterval(t *testing.T) {
+	expected := 5 * time.Second
+	if FLUSH_INTERVAL != expected {
+		t.Errorf("Expected FLUSH_INTERVAL to be %s, but got %s", expected, FLUSH_INTERVAL)
 	}
 }

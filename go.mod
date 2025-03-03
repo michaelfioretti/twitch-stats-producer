@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/gempir/go-twitch-irc/v2 v2.8.1
 	github.com/joho/godotenv v1.5.1
-	github.com/segmentio/kafka-go v0.4.47
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/protobuf v1.34.1
 )
