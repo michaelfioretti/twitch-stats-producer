@@ -14,5 +14,5 @@ var MessageChannel = make(chan *models.TwitchMessage, constants.MESSAGES_PER_BAT
 var TwitchClient *twitch.Client
 var LastUpdatedTopStreamers []string
 var LastUpdatedTopStreamersMutex *sync.RWMutex = &sync.RWMutex{}
-var FirebaseConfigPath string = "twitch-chat-stats-firebase-adminsdk-zm2i4-23ecdda6eb.json"
+var FirebaseConfigPath string = "twitch-chats-firebase-adminsdk-fbsvc-d5c364858b.json"
 var FirebaseApp *firebase.App

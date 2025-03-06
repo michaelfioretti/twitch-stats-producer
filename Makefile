@@ -2,8 +2,8 @@ init:
 	make clean
 	make proto
 
-dev:
-	docker compose -f docker-compose-dev.yml up --build
+docker-build:
+	docker build -t twichchatstatsproducer .
 
 test:
 	go test -v ./...

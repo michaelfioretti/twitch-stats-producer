@@ -73,7 +73,7 @@ func messageBatchFlusher() {
 		messageBatcher.mu.Lock()
 
 		if len(messageBatcher.messages) > 0 {
-			saveMessageBatchToFirebase()
+			// saveMessageBatchToFirebase()
 		}
 
 		messageBatcher.messages = make([]*models.TwitchMessage, 0, messageBatcher.maxMessages)
@@ -85,10 +85,10 @@ func ProcessTwitchMessages() {
 	for msg := range shared.MessageChannel {
 		messageBatcher.messages = append(messageBatcher.messages, msg)
 
-		if len(messageBatcher.messages) >= constants.MESSAGES_PER_BATCH {
-			log.Infof("Writing %d more messages at this time: ", constants.MESSAGES_PER_BATCH, time.Now().Format("2006-01-02 15:04:05"))
+		// if len(messageBatcher.messages) >= constants.MESSAGES_PER_BATCH {
+		// 	log.Infof("Writing %d more messages at this time: ", constants.MESSAGES_PER_BATCH, time.Now().Format("2006-01-02 15:04:05"))
 
-			saveMessageBatchToFirebase()
-		}
+		// 	saveMessageBatchToFirebase()
+		// }
 	}
 }

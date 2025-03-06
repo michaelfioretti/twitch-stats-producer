@@ -1,6 +1,0 @@
-services:
-  twitch-chat-stats:
-    build: .
-    container_name: twitch-chat-stats
-    env_file:
-      - .env

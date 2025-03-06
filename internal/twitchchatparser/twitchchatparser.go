@@ -14,7 +14,6 @@ import (
 
 func CreateTwitchClient() *twitch.Client {
 	oauthToken := twitchhelper.SendOauthRequest()
-
 	token := "oauth:" + oauthToken.AccessToken
 
 	client := twitch.NewClient(constants.TWITCH_USERNAME, token)

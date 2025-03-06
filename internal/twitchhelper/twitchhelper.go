@@ -10,6 +10,7 @@ import (
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 
+	"github.com/joho/godotenv"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,6 +18,7 @@ import (
 func SendOauthRequest() *models.TwitchOauthResponse {
 	var oauthResponse models.TwitchOauthResponse
 	clientId, clientSecret := loadTwitchKeys()
+
 	req, err := http.NewRequest("POST", constants.TWITCH_OAUTH_URL, nil)
 	if err != nil {
 		log.Fatal("Error creating request: ", err)
@@ -95,5 +97,10 @@ func GetTop100ChannelsByStreamViewCount() []string {
 }
 
 func loadTwitchKeys() (string, string) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	return os.Getenv("TWITCH_CLIENT_ID"), os.Getenv("TWITCH_CLIENT_SECRET")
 }
