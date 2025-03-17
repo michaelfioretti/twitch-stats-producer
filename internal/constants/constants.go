@@ -8,7 +8,7 @@ const (
 	TWITCH_IRC_URL                    = "irc.chat.twitch.tv:6667"
 	TWITCH_USERNAME                   = "justinfan12345"
 	TWITCH_TAGS_REQUEST_CMD           = "CAP REQ :twitch.tv/commands twitch.tv/tags"
-	MESSAGES_PER_BATCH                = 1000
+	MESSAGES_PER_BATCH                = 500
 	TWITCH_RESET_STREAM_MESSAGE_COUNT = 50000
 	FLUSH_INTERVAL                    = 5 * time.Second
 )

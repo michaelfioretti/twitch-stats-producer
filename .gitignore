@@ -32,7 +32,3 @@ twitch-chat-stats-secrets.yml
 
 # VS Code
 .vscode
-
-# Firebase
-twitch-chat-stats-firebase-adminsdk-zm2i4-23ecdda6eb.json
-twitch-chats-firebase-adminsdk-fbsvc-d5c364858b.json

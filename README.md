@@ -1,6 +1,6 @@
 # Twitch Stats Producer
 
-Reads and saves live Twitch stream chats from the top 100 livestreamers in real time. Written in Go, with data stored in Firebase.
+Reads and saves live Twitch stream chats from the top 100 livestreamers in real time.
 
 # Cloning and Running
 
