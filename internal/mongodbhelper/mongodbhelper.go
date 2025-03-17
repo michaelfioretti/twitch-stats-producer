@@ -14,7 +14,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -30,27 +29,28 @@ type MongoDbMessageBatcher struct {
 var messageBatcher MongoDbMessageBatcher
 
 func ConnectToMongoDb() {
-
-	// Use the SetServerAPIOptions() method to set the version of the Stable API on the client
+	DB_NAME, DB_PASSWORD := loadDatabaseKeys()
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI("mongodb+srv://michaelfioretti1:McUzouT2shcg2wLJ@cluster0.z9zf2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").SetServerAPIOptions(serverAPI)
+
+	uri := fmt.Sprintf("mongodb+srv://%s:%s@cluster0.z9zf2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", DB_NAME, DB_PASSWORD)
+	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
+
 	// Create a new client and connect to the server
-	db, err := mongo.Connect(context.TODO(), opts)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	db, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		panic(err)
 	}
 
-	defer func() {
-		if err = db.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-	// Send a ping to confirm a successful connection
-	if err := db.Database("admin").RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}).Err(); err != nil {
-		panic(err)
+	// Ensure the client is connected
+	err = db.Ping(ctx, nil)
+	if err != nil {
+		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
 
-	log.Infof("Pinged your deployment. You successfully connected to MongoDB!")
+	log.Infof("Connected to MongoDB")
 
 	messageBatcher = MongoDbMessageBatcher{
 		db:       db,
@@ -61,40 +61,29 @@ func ConnectToMongoDb() {
 	go messageBatchFlusher()
 }
 
+func DisconnectFromMongoDn() {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := messageBatcher.db.Disconnect(ctx)
+	if err != nil {
+		log.Fatalf("Failed to disconnect from MongoDB: %v", err)
+	}
+	fmt.Println("Disconnected from MongoDB")
+}
+
 func saveMessageBatchToMongoDb() {
 	log.Infof("Saving %d messages to Mongo: ", len(messageBatcher.messages))
 
-	DB_NAME, DB_PASSWORD := loadDatabaseKeys()
-
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	uri := fmt.Sprintf("mongodb+srv://%s:%s@cluster0.z9zf2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", DB_NAME, DB_PASSWORD)
-	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
-
-	// Create a new client and connect to the server
-	db, err := mongo.Connect(context.TODO(), opts)
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err = db.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	// Send a ping to confirm a successful connection
-	if err := db.Database("admin").RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}).Err(); err != nil {
-		panic(err)
-	}
-
-	coll := db.Database("twitch_chat_stats").Collection("messages")
+	coll := messageBatcher.db.Database("twitch_chat_stats").Collection("messages")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	newMessages := []interface{}{}
 	for _, msg := range messageBatcher.messages {
 		newMessages = append(newMessages, msg)
 	}
 
-	_, err = coll.InsertMany(context.TODO(), newMessages)
+	_, err := coll.InsertMany(ctx, newMessages)
 
 	if err != nil {
 		log.Fatal(err)

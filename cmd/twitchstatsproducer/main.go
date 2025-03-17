@@ -11,6 +11,7 @@ import (
 
 func main() {
 	mongodbhelper.ConnectToMongoDb()
+	defer mongodbhelper.DisconnectFromMongoDn()
 
 	shared.TwitchClient = twitchchatparser.CreateTwitchClient()
 	twitchchatparser.SubscribeToTwitchChat()
