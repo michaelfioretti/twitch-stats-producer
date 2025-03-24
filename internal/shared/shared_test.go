@@ -21,6 +21,11 @@ func TestShared(t *testing.T) {
 		assert.IsType(t, (*twitch.Client)(nil), TwitchClient)
 	})
 
+	t.Run("TestTotalMessageCount", func(t *testing.T) {
+		assert.Equal(t, int64(0), TotalMessageCount)
+		assert.IsType(t, int64(0), TotalMessageCount)
+	})
+
 	t.Run("TestLastUpdatedTopStreamers", func(t *testing.T) {
 		assert.Nil(t, LastUpdatedTopStreamers)
 		assert.IsType(t, []string{}, LastUpdatedTopStreamers)

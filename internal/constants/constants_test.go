@@ -41,7 +41,7 @@ func TestTwitchTagsRequestCmd(t *testing.T) {
 }
 
 func TestTwitchResetStreamMessageCount(t *testing.T) {
-	expected := 50000
+	expected := 500000
 	if TWITCH_RESET_STREAM_MESSAGE_COUNT != expected {
 		t.Errorf("Expected TWITCH_RESET_STREAM_MESSAGE_COUNT to be %d, but got %d", expected, TWITCH_RESET_STREAM_MESSAGE_COUNT)
 	}

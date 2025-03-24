@@ -11,6 +11,7 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
+	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatparser"
 
 	log "github.com/sirupsen/logrus"
 
@@ -99,6 +100,15 @@ func messageBatchFlusher() {
 			saveMessageBatchToMongoDb()
 		}
 
+		// Update total processed messages and reset streamers to watch
+		shared.TotalMessageCount += int64(len(messageBatcher.messages))
+		log.Infof("Total messages processed: %d out of limit of %d", shared.TotalMessageCount, constants.TWITCH_RESET_STREAM_MESSAGE_COUNT)
+		if shared.TotalMessageCount >= constants.TWITCH_RESET_STREAM_MESSAGE_COUNT {
+			twitchchatparser.UpdateStreamerList(shared.TwitchClient)
+			shared.TotalMessageCount = 0
+		}
+
+		// Reset message batch
 		messageBatcher.messages = make([]*models.TwitchMessage, 0, messageBatcher.maxMessages)
 		messageBatcher.mu.Unlock()
 	}
@@ -106,7 +116,6 @@ func messageBatchFlusher() {
 
 func ProcessTwitchMessages() {
 	for msg := range shared.MessageChannel {
-		log.Print(msg)
 		messageBatcher.mu.Lock()
 		messageBatcher.messages = append(messageBatcher.messages, msg)
 		messageBatcher.mu.Unlock()

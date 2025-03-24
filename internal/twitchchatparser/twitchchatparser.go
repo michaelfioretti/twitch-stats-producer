@@ -8,6 +8,8 @@ import (
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
 )
@@ -62,6 +64,7 @@ func UpdateStreamerList(client *twitch.Client) {
 		}
 	}
 
+	log.Infof("Joining %d new channels and leaving %d channels", len(streamsToJoin), len(streamsToLeave))
 	// Leave the channels that are no longer in the top 100
 	if len(streamsToJoin) > 0 {
 		shared.TwitchClient.Join(streamsToJoin...)
