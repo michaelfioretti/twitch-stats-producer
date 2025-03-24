@@ -11,6 +11,6 @@ import (
 
 var MessageChannel = make(chan *models.TwitchMessage, constants.MESSAGES_PER_BATCH)
 var TwitchClient *twitch.Client
-var TotalMessageCount int64
+var TotalMessageCount int
 var LastUpdatedTopStreamers []string
 var LastUpdatedTopStreamersMutex *sync.RWMutex = &sync.RWMutex{}

@@ -22,8 +22,8 @@ func TestShared(t *testing.T) {
 	})
 
 	t.Run("TestTotalMessageCount", func(t *testing.T) {
-		assert.Equal(t, int64(0), TotalMessageCount)
-		assert.IsType(t, int64(0), TotalMessageCount)
+		assert.Equal(t, int(0), TotalMessageCount)
+		assert.IsType(t, int(0), TotalMessageCount)
 	})
 
 	t.Run("TestLastUpdatedTopStreamers", func(t *testing.T) {

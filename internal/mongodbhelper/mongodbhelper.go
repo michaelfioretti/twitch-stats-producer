@@ -101,7 +101,7 @@ func messageBatchFlusher() {
 		}
 
 		// Update total processed messages and reset streamers to watch
-		shared.TotalMessageCount += int64(len(messageBatcher.messages))
+		shared.TotalMessageCount += int(len(messageBatcher.messages))
 		log.Infof("Total messages processed: %d out of limit of %d", shared.TotalMessageCount, constants.TWITCH_RESET_STREAM_MESSAGE_COUNT)
 		if shared.TotalMessageCount >= constants.TWITCH_RESET_STREAM_MESSAGE_COUNT {
 			twitchchatparser.UpdateStreamerList(shared.TwitchClient)

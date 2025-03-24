@@ -119,5 +119,6 @@ func ParseTwitchMessage(message twitch.PrivateMessage) *models.TwitchMessage {
 		Subscribed: int32(subscribed),
 		Color:      message.Tags["color"],
 		RoomID:     "#" + channel,
+		CreatedAt:  int32(message.Time.Unix()),
 	}
 }
