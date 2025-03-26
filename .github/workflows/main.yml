@@ -21,7 +21,6 @@ jobs:
       run: make build
 
     - name: Set up Docker Build
-      # Docker steps
       uses: docker/setup-buildx-action@v2
 
     - name: Log in to Docker Hub
@@ -44,23 +43,6 @@ jobs:
 
     - name: Authenticate with DigitalOcean
       run: doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-    - name: Get kubeconfig
-      run: doctl kubernetes cluster kubeconfig save ${{ secrets.K8_CLUSTER_NAME }}
-
-    - name: Apply Sealed Secret for Kafka and Twitch Chat Stats configuration
-      run: kubectl apply -f kubernetes/sealed-twitch-chat-stats-secrets.yml
-
-    - name: Apply kafka deployment
-      run: |
-        kubectl apply -f kubernetes/persistentVolume.yml
-        kubectl apply -f kubernetes/kafka-deployment.yml
-        kubectl apply -f kubernetes/kafka-service.yml
-
-    - name: Apply twitch chat stats deployment
-      run: |
-        kubectl apply -f kubernetes/deployment.yml
-        kubectl apply -f kubernetes/service.yml
 
     - name: Log out from Docker Hub
       run: docker logout

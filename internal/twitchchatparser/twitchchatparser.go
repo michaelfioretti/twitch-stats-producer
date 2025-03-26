@@ -3,24 +3,19 @@ package twitchchatparser
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	"github.com/segmentio/kafka-go"
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
-	kafkahelper "github.com/michaelfioretti/twitch-stats-producer/internal/kafkahelper"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchhelper"
 )
 
 func CreateTwitchClient() *twitch.Client {
-	// First, get the OAuth token
 	oauthToken := twitchhelper.SendOauthRequest()
-
 	token := "oauth:" + oauthToken.AccessToken
 
 	client := twitch.NewClient(constants.TWITCH_USERNAME, token)
@@ -29,43 +24,9 @@ func CreateTwitchClient() *twitch.Client {
 	return client
 }
 
-// Used to get the initial top 100 streamers. Subsequent updates will be done in the UpdateStreamerList method
 func SubscribeToTwitchChat() {
 	topLivestreams := twitchhelper.GetTop100ChannelsByStreamViewCount()
 	go shared.TwitchClient.Join(topLivestreams...)
-}
-
-func ProcessTwitchMessages() {
-	go func() {
-		for msg := range shared.MessageChannel {
-			twitchMessage, err := proto.Marshal(msg)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Error("Error marshaling message")
-
-				continue
-			}
-
-			msg := kafka.Message{Value: twitchMessage}
-			shared.KafkaMessageBatch = append(shared.KafkaMessageBatch, msg)
-
-			if len(shared.KafkaMessageBatch) == constants.KAFKA_MESSAGES_PER_BATCH {
-				log.Info("Writing 100 more messages at this time: ", time.Now().Format("2006-01-02 15:04:05"))
-
-				go kafkahelper.WriteDataToKafka("streamer_chat", shared.KafkaMessageBatch)
-
-				shared.ProcessedMessageCount += constants.KAFKA_MESSAGES_PER_BATCH
-
-				if shared.ProcessedMessageCount >= constants.TWITCH_RESET_STREAM_MESSAGE_COUNT {
-					go UpdateStreamerList(shared.TwitchClient)
-					shared.ProcessedMessageCount = 0
-				}
-
-				shared.KafkaMessageBatch = make([]kafka.Message, 0)
-			}
-		}
-	}()
 }
 
 // We will go through each of the streams that we are currently watching and update the list of top 100 streams
@@ -103,6 +64,7 @@ func UpdateStreamerList(client *twitch.Client) {
 		}
 	}
 
+	log.Infof("Joining %d new channels and leaving %d channels", len(streamsToJoin), len(streamsToLeave))
 	// Leave the channels that are no longer in the top 100
 	if len(streamsToJoin) > 0 {
 		shared.TwitchClient.Join(streamsToJoin...)
@@ -157,5 +119,6 @@ func ParseTwitchMessage(message twitch.PrivateMessage) *models.TwitchMessage {
 		Subscribed: int32(subscribed),
 		Color:      message.Tags["color"],
 		RoomID:     "#" + channel,
+		CreatedAt:  int32(message.Time.Unix()),
 	}
 }

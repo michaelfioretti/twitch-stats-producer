@@ -16,6 +16,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+.DS_Store
+internal/.DS_Store
 
 # Go workspace file
 go.work
