@@ -12,6 +12,7 @@ import (
 
 	"github.com/joho/godotenv"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -97,9 +98,9 @@ func GetTop100ChannelsByStreamViewCount() []string {
 }
 
 func loadTwitchKeys() (string, string) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Note: in production, env variables will be injected in
+	if err := godotenv.Load(); err != nil {
+		logrus.Println("No .env file found, continuing...")
 	}
 
 	return os.Getenv("TWITCH_CLIENT_ID"), os.Getenv("TWITCH_CLIENT_SECRET")
