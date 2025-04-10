@@ -1,0 +1,25 @@
+name: twitch-chat-producer
+services:
+  - name: twitch-chat-worker
+    image:
+      registry: docker.io
+      repository: michaelfioretti/twitch-chat-stats
+      tag: latest
+      username: ${DOCKER_USERNAME}
+      password: ${DOCKER_PASSWORD}
+    environment_slug: go
+    run_command: ./twitch-chat-stats
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: TWITCH_CLIENT_ID
+        value: ${TWITCH_CLIENT_ID}
+      - key: TWITCH_CLIENT_SECRET
+        value: ${TWITCH_CLIENT_SECRET}
+      - key: DB_USERNAME
+        value: ${DB_USERNAME}
+      - key: DB_PASSWORD
+        value: ${DB_PASSWORD}
+    alerts:
+      - rule: DEPLOYMENT_FAILED
+      - rule: RUN_FAILED
