@@ -13,6 +13,7 @@ import (
 	"github.com/michaelfioretti/twitch-stats-producer/internal/shared"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatparser"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -123,9 +124,9 @@ func ProcessTwitchMessages() {
 }
 
 func loadDatabaseKeys() (string, string) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Note: in production, env variables will be injected in
+	if err := godotenv.Load(); err != nil {
+		logrus.Println("No .env file found, continuing...")
 	}
 
 	return os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD")
