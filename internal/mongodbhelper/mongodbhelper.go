@@ -16,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -82,7 +83,20 @@ func saveMessageBatchToMongoDb() {
 
 	newMessages := []interface{}{}
 	for _, msg := range messageBatcher.messages {
-		newMessages = append(newMessages, msg)
+		// Convert Protobuf timestamp to time.Time for MongoDB
+		doc := bson.M{
+			"username":   msg.Username,
+			"channel":    msg.Channel,
+			"message":    msg.Message,
+			"badges":     msg.Badges,
+			"bits":       msg.Bits,
+			"mod":        msg.Mod,
+			"subscribed": msg.Subscribed,
+			"color":      msg.Color,
+			"roomID":     msg.RoomID,
+			"createdat":  msg.CreatedAt.AsTime(),
+		}
+		newMessages = append(newMessages, doc)
 	}
 
 	_, err := coll.InsertMany(ctx, newMessages)

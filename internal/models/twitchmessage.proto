@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package models;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/michaelfioretti/twitch-stats-producer/internal/models";
 
 message TwitchMessage {
@@ -14,7 +16,7 @@ message TwitchMessage {
   int32 subscribed = 7;
   string color = 8;
   string roomID = 9;
-  int32 CreatedAt = 10;
+  google.protobuf.Timestamp createdAt = 10;
 }
 
 message Condition {

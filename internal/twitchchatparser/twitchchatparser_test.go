@@ -8,9 +8,12 @@ import (
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
 	"github.com/michaelfioretti/twitch-stats-producer/internal/twitchchatparser"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestParseTwitchMessage(t *testing.T) {
+	messageTime := testTime()
+
 	message := twitch.PrivateMessage{
 		User: twitch.User{
 			Name: "testuser",
@@ -25,7 +28,7 @@ func TestParseTwitchMessage(t *testing.T) {
 			"room-id":    "123456",
 		},
 		Channel: "#testchannel",
-		Time:    testTime(),
+		Time:    messageTime,
 	}
 
 	expected := &models.TwitchMessage{
@@ -38,7 +41,7 @@ func TestParseTwitchMessage(t *testing.T) {
 		Subscribed: 1,
 		Color:      "#1E90FF",
 		RoomID:     "#123456",
-		CreatedAt:  int32(testTime().Unix()),
+		CreatedAt:  timestamppb.New(messageTime),
 	}
 
 	result := twitchchatparser.ParseTwitchMessage(message)
@@ -46,6 +49,8 @@ func TestParseTwitchMessage(t *testing.T) {
 }
 
 func TestParseTwitchMessage_ActionMessage(t *testing.T) {
+	messageTime := testTime()
+
 	message := twitch.PrivateMessage{
 		User: twitch.User{
 			Name: "testuser",
@@ -60,7 +65,7 @@ func TestParseTwitchMessage_ActionMessage(t *testing.T) {
 			"room-id":    "654321",
 		},
 		Channel: "#anotherchannel",
-		Time:    testTime(),
+		Time:    messageTime,
 	}
 
 	expected := &models.TwitchMessage{
@@ -73,7 +78,7 @@ func TestParseTwitchMessage_ActionMessage(t *testing.T) {
 		Subscribed: 0,
 		Color:      "#FF4500",
 		RoomID:     "#654321",
-		CreatedAt:  int32(testTime().Unix()),
+		CreatedAt:  timestamppb.New(messageTime),
 	}
 
 	result := twitchchatparser.ParseTwitchMessage(message)
@@ -112,7 +117,7 @@ func TestParseTwitchMessage_NoBadges(t *testing.T) {
 		Subscribed: 0,
 		Color:      "",
 		RoomID:     "#789012",
-		CreatedAt:  int32(messageTime.Unix()),
+		CreatedAt:  timestamppb.New(messageTime),
 	}
 
 	result := twitchchatparser.ParseTwitchMessage(message)
