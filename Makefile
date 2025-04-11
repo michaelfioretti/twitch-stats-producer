@@ -12,10 +12,7 @@ build:
 	go build -o dist/main cmd/twitchstatsproducer/main.go
 
 coverage:
-	go test ./... -coverprofile=coverage.out
-
-view-coverage:
-	go tool cover -html=coverage.out
+	go test -coverprofile=coverage.txt
 
 proto:
 	make clean
@@ -28,11 +25,3 @@ clean:
 	if [ -d internal/models/proto ]; then \
 		rm -rf internal/models/proto; \
 	fi
-
-secrets:
-	if [ ! -d secrets ]; then \
-		mkdir secrets; \
-	fi
-	@echo "twitch_client_id" > secrets/twitch_client_id.txt
-	@echo "twitch_client_secret" > secrets/twitch_client_secret.txt
-	@echo "twitch_oauth_token" > secrets/twitch_oauth_token.txt

@@ -27,6 +27,3 @@ envs:
     scope: RUN_AND_BUILD_TIME
     type: SECRET
     value: EV[1:QMNB8frtszm4AGbI7BSNj1NxDTkMOGJI:n6P98SrnT/k9ccSQwjQ1Bb0AOBpYqjfEUyYu/NGAVDM=]
-features:
-  - buildpack-stack=ubuntu-22
-ingress: {}
