@@ -2,6 +2,8 @@
 
 Reads and saves live Twitch stream chats from the top 100 livestreamers in real time. Built using Go and the Twitch API.
 
+[![codecov](https://codecov.io/gh/michaelfioretti/twitch-stats-producer/graph/badge.svg?token=WLV1BWHKG2)](https://codecov.io/gh/michaelfioretti/twitch-stats-producer)
+
 # Cloning and Running
 
 To clone the repository:
