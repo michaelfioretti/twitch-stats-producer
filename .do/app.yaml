@@ -2,28 +2,26 @@ name: twitch-chat-stats-producer
 region: sfo
 workers:
   - image:
-      registry: michaelfioretti
-      registry_credentials: EV[1:7A2OObOV1cXfKg6pR/sLnZMkZ5kalA9i:H2/dB/+/Q3L5A75cN9EaKD/KY0vD6StOhSKHl4Sj+HecLNIBKReh6knWsZ74fG52RX5mmWLmH+FQuz5fJ5r3fielRNQ=]
+      registry: docker.io
+      repository: michaelfioretti/twitch-chat-stats
       registry_type: DOCKER_HUB
-      repository: twitch-chat-stats
+      registry_credentials: ${DOCKER_USERNAME}:${DOCKER_PASSWORD}
       tag: latest
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: michaelfioretti-twitch-chat-stat
 envs:
   - key: TWITCH_CLIENT_ID
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-    value: EV[1:tcpsUz0CMV2vfb98kgnGpSgn57rLgb2D:7YC4mydIPJCiuY2CCEZdPFs1CaOsjLxzqEUV/5aqMbLJkJdzZE98kZkAK5aX7g==]
+    value: ${TWITCH_CLIENT_ID}
   - key: TWITCH_CLIENT_SECRET
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-    value: EV[1:RnOoAFZKVUdN8UQIHesL72GnAa7B4hyg:j3Xymnm/Uzj/9Brph/Src4SajdFTZhx1kMZB7/mb+bo9oDPOPV2sMAGM3g5GBg==]
+    value: ${TWITCH_CLIENT_SECRET}
   - key: DB_USERNAME
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-    value: EV[1:TEK/oKeLLGX0SQ2B0tO5lCa30G+bfaMd:sP212OIGBRKfvsC3Rn6Bo6B2Stmp59tkQnlOrbaQOJ8=]
+    value: ${DB_USERNAME}
   - key: DB_PASSWORD
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-    value: EV[1:QMNB8frtszm4AGbI7BSNj1NxDTkMOGJI:n6P98SrnT/k9ccSQwjQ1Bb0AOBpYqjfEUyYu/NGAVDM=]
+    value: ${DB_PASSWORD}
+features:
+  - buildpack-stack=ubuntu-22
+ingress: {}
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
