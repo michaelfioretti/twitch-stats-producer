@@ -42,9 +42,9 @@ jobs:
         tags: michaelfioretti/twitch-chat-stats:latest
 
     - name: Install doctl
-      run: |
-        curl -sL https://github.com/digitalocean/doctl/releases/download/v1.63.0/doctl-1.63.0-linux-amd64.tar.gz | tar -xzv
-        sudo mv doctl /usr/local/bin
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
     - name: Authenticate with DigitalOcean
       run: doctl auth init -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}

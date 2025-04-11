@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v2"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/michaelfioretti/twitch-stats-producer/internal/constants"
 	models "github.com/michaelfioretti/twitch-stats-producer/internal/models/proto"
@@ -119,6 +120,6 @@ func ParseTwitchMessage(message twitch.PrivateMessage) *models.TwitchMessage {
 		Subscribed: int32(subscribed),
 		Color:      message.Tags["color"],
 		RoomID:     "#" + channel,
-		CreatedAt:  int32(message.Time.Unix()),
+		CreatedAt:  timestamppb.New(message.Time),
 	}
 }
