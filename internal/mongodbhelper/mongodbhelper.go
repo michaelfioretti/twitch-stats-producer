@@ -126,7 +126,7 @@ func ProcessTwitchMessages() {
 func loadDatabaseKeys() (string, string) {
 	// Note: in production, env variables will be injected in
 	if err := godotenv.Load(); err != nil {
-		logrus.Println("No .env file found, continuing...")
+		logrus.Debug("No .env file found, continuing...")
 	}
 
 	return os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD")

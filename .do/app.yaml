@@ -1,6 +1,15 @@
-alerts:
-  - rule: DEPLOYMENT_FAILED
-  - rule: DOMAIN_FAILED
+name: twitch-chat-stats-producer
+region: sfo
+workers:
+  - image:
+      registry: michaelfioretti
+      registry_credentials: EV[1:7A2OObOV1cXfKg6pR/sLnZMkZ5kalA9i:H2/dB/+/Q3L5A75cN9EaKD/KY0vD6StOhSKHl4Sj+HecLNIBKReh6knWsZ74fG52RX5mmWLmH+FQuz5fJ5r3fielRNQ=]
+      registry_type: DOCKER_HUB
+      repository: twitch-chat-stats
+      tag: latest
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    name: michaelfioretti-twitch-chat-stat
 envs:
   - key: TWITCH_CLIENT_ID
     scope: RUN_AND_BUILD_TIME
@@ -21,15 +30,3 @@ envs:
 features:
   - buildpack-stack=ubuntu-22
 ingress: {}
-name: twitch-chat-stats-producer
-region: sfo
-workers:
-  - image:
-      registry: michaelfioretti
-      registry_credentials: EV[1:7A2OObOV1cXfKg6pR/sLnZMkZ5kalA9i:H2/dB/+/Q3L5A75cN9EaKD/KY0vD6StOhSKHl4Sj+HecLNIBKReh6knWsZ74fG52RX5mmWLmH+FQuz5fJ5r3fielRNQ=]
-      registry_type: DOCKER_HUB
-      repository: twitch-chat-stats
-      tag: latest
-    instance_count: 1
-    instance_size_slug: apps-s-1vcpu-1gb
-    name: michaelfioretti-twitch-chat-stat
