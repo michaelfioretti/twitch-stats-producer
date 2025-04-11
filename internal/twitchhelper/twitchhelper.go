@@ -16,7 +16,17 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func SendOauthRequest() *models.TwitchOauthResponse {
+var HTTPClient = &http.Client{}
+
+func GetHttpClient() *http.Client {
+	return HTTPClient
+}
+
+func SetHttpClient(client *http.Client) {
+	HTTPClient = client
+}
+
+func SendOAuthRequest() *models.TwitchOauthResponse {
 	var oauthResponse models.TwitchOauthResponse
 	clientId, clientSecret := loadTwitchKeys()
 
@@ -32,7 +42,7 @@ func SendOauthRequest() *models.TwitchOauthResponse {
 	q.Add("grant_type", constants.TWITCH_OAUTH_REQUEST_TYPE)
 
 	req.URL.RawQuery = q.Encode()
-	client := &http.Client{}
+	client := HTTPClient
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("Error sending request: %v", err)
@@ -55,7 +65,7 @@ func SendOauthRequest() *models.TwitchOauthResponse {
 }
 
 func GetTop100ChannelsByStreamViewCount() []string {
-	oauthToken := SendOauthRequest()
+	oauthToken := SendOAuthRequest()
 
 	var top100Streams models.Top100StreamsResponse
 	clientId, _ := loadTwitchKeys()
@@ -65,7 +75,7 @@ func GetTop100ChannelsByStreamViewCount() []string {
 	q.Add("first", "100")
 	u.RawQuery = q.Encode()
 
-	client := &http.Client{}
+	client := HTTPClient
 	req, _ := http.NewRequest("GET", u.String(), nil)
 	req.Header.Set("Client-Id", clientId)
 	req.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
@@ -100,7 +110,7 @@ func GetTop100ChannelsByStreamViewCount() []string {
 func loadTwitchKeys() (string, string) {
 	// Note: in production, env variables will be injected in
 	if err := godotenv.Load(); err != nil {
-		logrus.Println("No .env file found, continuing...")
+		logrus.Debug("No .env file found, continuing...")
 	}
 
 	return os.Getenv("TWITCH_CLIENT_ID"), os.Getenv("TWITCH_CLIENT_SECRET")
