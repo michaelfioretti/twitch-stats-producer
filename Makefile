@@ -12,7 +12,7 @@ build:
 	go build -o dist/main cmd/twitchstatsproducer/main.go
 
 coverage:
-	go test -coverprofile=coverage.txt
+	go test ./... -coverprofile=coverage.txt
 
 proto:
 	make clean
