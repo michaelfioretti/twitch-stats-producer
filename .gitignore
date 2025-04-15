@@ -36,3 +36,6 @@ twitch-chat-stats-secrets.yml
 
 # VS Code
 .vscode
+
+# Helper to create TTL index
+create_ttl.go
