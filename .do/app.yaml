@@ -19,6 +19,8 @@ envs:
     value: ${DB_USERNAME}
   - key: DB_PASSWORD
     value: ${DB_PASSWORD}
+  - key: TWITCH_CHAT_API_HEARTBEAT_URL
+    value: ${TWITCH_CHAT_API_HEARTBEAT_URL}
 features:
   - buildpack-stack=ubuntu-22
 ingress: {}
